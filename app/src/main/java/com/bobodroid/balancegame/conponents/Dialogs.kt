@@ -16,11 +16,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +33,7 @@ import com.bobodroid.balancegame.ui.theme.MyPageButtonColor
 import com.bobodroid.balancegame.ui.theme.Teal200
 import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.dataViewModels.ItemKind
+import kotlinx.coroutines.launch
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -226,18 +228,6 @@ fun StartGameCodeInputDialog(onDismissRequest: (Boolean)->Unit,
 
     val gameCode = gameViewModel.gameCode.collectAsState()
 
-    val matchingGameItem = gameViewModel.codeMatchingGameItem.collectAsState(initial = emptyList())
-
-    val receiveSuccess = gameViewModel.success.collectAsState(initial = emptyList())
-
-    val finalSuccess = if (receiveSuccess.value == null) true else receiveSuccess.value
-
-
-
-    Log.d(TAG, "${gameViewModel.userSaveGameItem.value}")
-    Log.d(TAG, "${gameCode.value}")
-    Log.d(TAG, "${matchingGameItem.value}")
-
 
     Dialog(
         onDismissRequest = { onDismissRequest(false) },
@@ -276,23 +266,16 @@ fun StartGameCodeInputDialog(onDismissRequest: (Boolean)->Unit,
                 horizontalArrangement = Arrangement.Center
             ) {
 
-                Box(
-                    modifier = Modifier.wrapContentSize()
-                ) {
-                    receiveSuccess.value.forEach {
-                        Buttons(
-                            label = "시작",
-                            onClicked = selected,
-                            color = Teal200,
-                            fontColor = Color.Black,
-                            modifier = Modifier
-                                .height(40.dp)
-                                .width(80.dp),
-                            fontSize = 15,
-                            enabled = it
-                        )
-                    }
-                }
+                Buttons(
+                    label = "시작",
+                    onClicked = selected,
+                    color = Teal200,
+                    fontColor = Color.Black,
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(80.dp),
+                    fontSize = 15,
+                )
 
 
                 Spacer(modifier = Modifier.width(30.dp))
@@ -311,15 +294,59 @@ fun StartGameCodeInputDialog(onDismissRequest: (Boolean)->Unit,
                 )
             }
 
-
         }
+
     }
 
 }
 
 
 
+@Composable
+fun CompatibilityViewDialog(
+    onDismissRequest: (Boolean)->Unit,
+    selected: ()-> Unit) {
 
+    Dialog(
+        onDismissRequest = { onDismissRequest(false) },
+        properties = DialogProperties()
+    ) {
+        Column(modifier = Modifier
+            .wrapContentSize()
+            .padding(10.dp)
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(16.dp)
+            ),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 15.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center) {
+
+                Buttons(
+                    label = "궁합 결과보기",
+                    onClicked = selected,
+                    color = Teal200,
+                    fontColor = Color.Black,
+                    modifier = Modifier
+                        .height(40.dp)
+                        .wrapContentSize(),
+                    fontSize = 15
+                )
+            }
+
+
+
+        }
+    }
+}
 
 
 

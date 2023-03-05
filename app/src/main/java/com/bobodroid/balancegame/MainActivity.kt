@@ -24,10 +24,7 @@ import com.bobodroid.balancegame.Screens.Auth.PasswordFindScreen
 import com.bobodroid.balancegame.Screens.Auth.RegisterScreen
 import com.bobodroid.balancegame.Screens.Auth.WelcomeScreen
 import com.bobodroid.balancegame.Screens.HomeScreen
-import com.bobodroid.balancegame.Screens.Main.CompatibilityGameScreen
-import com.bobodroid.balancegame.Screens.Main.DiyScreen
-import com.bobodroid.balancegame.Screens.Main.MyPageScreen
-import com.bobodroid.balancegame.Screens.Main.SingleGameScreen
+import com.bobodroid.balancegame.Screens.Main.*
 import com.bobodroid.balancegame.ui.theme.BalanceGameTheme
 import com.bobodroid.balancegame.viewmodels.AuthViewModel
 import com.bobodroid.balancegame.viewmodels.GameViewModel
@@ -91,6 +88,10 @@ fun MainNaHost(
       composable(MainRoute.CompatibilityGame.routeName!!){
           CompatibilityGameScreen(mainRouteAction, gameViewModel)
       }
+      composable(MainRoute.CompatibilityResult.routeName!!){
+          ResultScreen(mainRouteAction, gameViewModel)
+      }
+
   }
 
 }

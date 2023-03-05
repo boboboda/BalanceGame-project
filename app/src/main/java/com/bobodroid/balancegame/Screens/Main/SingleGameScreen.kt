@@ -11,8 +11,8 @@ import androidx.compose.ui.unit.dp
 import com.bobodroid.balancegame.MainRoute
 import com.bobodroid.balancegame.MainRouteAction
 import com.bobodroid.balancegame.conponents.Buttons
-import com.bobodroid.balancegame.conponents.GameListView
 import com.bobodroid.balancegame.conponents.SaveQuestionDialog
+import com.bobodroid.balancegame.conponents.SingleGameListView
 import com.bobodroid.balancegame.ui.theme.BottomSelectedColor
 import com.bobodroid.balancegame.ui.theme.Purple200
 import com.bobodroid.balancegame.viewmodels.GameViewModel
@@ -41,34 +41,30 @@ fun SingleGameScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel)
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-            GameListView(
-                firstText = currentGameItem.value.firstItem,
-                secondText = currentGameItem.value.secondItem,
+            SingleGameListView(
+                firstText = currentGameItem.value.firstItem!!,
+                secondText = currentGameItem.value.secondItem!!,
                 firstOnClicked = {
-                    if(gameStage.value == 10) {openDialog.value = true
-
-
-                    }
-                    else
-                    {openDialog.value = false
-                        if(gameStage.value == 10) return@GameListView
-                        gameViewModel.stageResultValue.value = 1
-                        gameViewModel.usedGameItem()
-                        gameViewModel.moveToNextStage()
-                    }
-                                 },
-
-                secondClicked = {
+                    gameViewModel.stageResultValue.value = 1
+                    gameViewModel.usedGameItem(currentGameItem.value)
                     if(gameStage.value == 10) {openDialog.value = true
                     }
                     else
                     {openDialog.value = false
-                        if(gameStage.value == 10) return@GameListView
-                        gameViewModel.stageResultValue.value = 2
-                        gameViewModel.usedGameItem()
                         gameViewModel.moveToNextStage()
                     } },
-                gameState = gameStage.value
+
+                secondClicked = {
+                    gameViewModel.stageResultValue.value = 2
+                    gameViewModel.usedGameItem(currentGameItem.value)
+                    if(gameStage.value == 10) {openDialog.value = true
+                    }
+                    else
+                    {openDialog.value = false
+                        gameViewModel.moveToNextStage()
+                    } },
+                gameState = gameStage.value,
+                kind = "${currentGameItem.value.itemKind!!.kindName}"
             )
 
         Spacer(modifier = Modifier.height(20.dp))
