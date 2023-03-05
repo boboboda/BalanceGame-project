@@ -153,9 +153,6 @@ class GameViewModel: ViewModel() {
         }
     }
 
-
-    val hahaha = "dd"
-
     fun getKindFilterItem(gameItemList: List<GameItem>): List<GameItem> {
         var tempGameItemList = gameItemList
         val kindGameItem = tempGameItemList.filter { it.itemKind == selectedKindItem.value }
