@@ -24,7 +24,8 @@ import com.bobodroid.balancegame.ui.theme.StageColor
 @SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun GameListView(
+fun SingleGameListView(
+    kind: String,
     firstText: String,
     secondText: String,
     firstOnClicked: ()-> Unit,
@@ -54,6 +55,21 @@ fun GameListView(
                     contentAlignment = Alignment.Center
                 ){
                     Text(text = "10/$gameState", fontSize = 25.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)
+                }
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.3f)
+                    .height(50.dp)
+                    .padding(start = 20.dp),
+            ) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .background(StageColor),
+                    contentAlignment = Alignment.Center
+                ){
+                    Text(text = "$kind", fontSize = 25.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -105,6 +121,158 @@ fun GameListView(
                         fontSize = 80.sp,
                         color = Color.DarkGray,
                         textAlign = TextAlign.Center)
+                }
+            }
+        }
+
+    }
+}
+
+
+@SuppressLint("StateFlowValueCalledInComposition")
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun TogetherGameListView(
+    kind: String,
+    firstText: String,
+    secondText: String,
+    firstOnClicked: ()-> Unit,
+    secondClicked: ()-> Unit,
+    gameState: Int) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.8f)
+//        .background(Color.White),
+
+    ) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Card(modifier = Modifier
+                .width(100.dp)
+                .height(50.dp)
+                .padding(start = 20.dp),
+                onClick = {
+
+                }) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(StageColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "10/$gameState",
+                        fontSize = 25.sp,
+                        color = Color.DarkGray,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Card(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(50.dp)
+                    .padding(start = 20.dp),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(StageColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "$kind",
+                        fontSize = 25.sp,
+                        color = Color.DarkGray,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Card(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(50.dp)
+                    .padding(start = 20.dp),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(StageColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "궁합",
+                        fontSize = 25.sp,
+                        color = Color.DarkGray,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(40.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(200.dp),
+                onClick = firstOnClicked
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(FirstGameItemColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = firstText,
+                        fontSize = 80.sp,
+                        color = Color.DarkGray
+                    )
+                }
+            }
+        }
+
+
+        Spacer(modifier = Modifier.height(60.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(200.dp),
+                onClick = secondClicked
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(SecondGameItemColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        modifier = Modifier.padding(5.dp),
+                        text = secondText,
+                        fontSize = 80.sp,
+                        color = Color.DarkGray,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }

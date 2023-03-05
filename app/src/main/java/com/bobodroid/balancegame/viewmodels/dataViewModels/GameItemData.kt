@@ -9,4 +9,4 @@ enum class ItemKind(val kindName: String) {
     NULL("NULL")
 }
 
-data class GameItem (val id: Int? = null, val makerName:String = "", val firstItem: String = "", val secondItem: String = "", val itemKind: ItemKind)
+data class GameItem (val id: Int? = null, val makerName: String? = "", val firstItem: String? = "", val secondItem: String? = "", val selectItem: Int? = 0, val itemKind: ItemKind? = null)

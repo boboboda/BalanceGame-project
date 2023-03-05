@@ -1,6 +1,7 @@
 package com.bobodroid.balancegame.Screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -17,6 +18,7 @@ import com.bobodroid.balancegame.conponents.KindDialog
 import com.bobodroid.balancegame.conponents.StartGameCodeInputDialog
 import com.bobodroid.balancegame.ui.theme.Purple200
 import com.bobodroid.balancegame.viewmodels.GameViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -30,6 +32,19 @@ fun HomeScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel){
     var openDialog = remember { mutableStateOf(false) }
 
     var openCodeInputDialog = remember{ mutableStateOf(false) }
+
+
+    val snackBarHostState = remember { SnackbarHostState() }
+
+    val receiveSuccess = gameViewModel.success.collectAsState(initial = false)
+
+    val coroutineScope = rememberCoroutineScope()
+
+
+
+
+
+
 
 
 
@@ -118,12 +133,29 @@ fun HomeScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel){
 
         if(openCodeInputDialog.value) {
             StartGameCodeInputDialog(
-                onDismissRequest = {openCodeInputDialog.value = it},
-                selected = {routeAction.navTo(MainRoute.CompatibilityGame) },
-                gameViewModel = gameViewModel
+                onDismissRequest = {openCodeInputDialog.value = it
+                                   gameViewModel.gameCode.value = ""
+                                   },
+                selected = {
+                    if(!receiveSuccess.value) {
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar(
+                                "게임코드가 맞지 않습니다 다시입력해 주세요.",
+                                actionLabel = "닫기", SnackbarDuration.Short
+                            )
+                        }
+                    openCodeInputDialog.value = false
+                    } else
+                    {
+                        routeAction.navTo(MainRoute.CompatibilityGame)
+                        gameViewModel.startTogetherGame()
+                    } },
+                gameViewModel = gameViewModel,
             )
         }
-
+        Spacer(modifier = Modifier.weight(1f))
+        SnackbarHost(hostState = snackBarHostState, modifier = Modifier)
 
     }
+
 }

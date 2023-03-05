@@ -14,6 +14,7 @@ sealed class MainRoute(
     object DoItYourSelf: MainRoute("DO_IT_YOUR_SELF","DIY", 3, R.drawable.ic_create)
     object SingleGame: MainRoute("SINGLE_GAME",null,null, null)
     object CompatibilityGame: MainRoute("COMPATIBILITY_GAME", null,null, null)
+    object CompatibilityResult: MainRoute("COMPATIBILITY_RESULT", null, null, null)
 }
 
 
