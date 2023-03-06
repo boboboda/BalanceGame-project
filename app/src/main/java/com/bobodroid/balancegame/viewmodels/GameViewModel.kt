@@ -159,7 +159,6 @@ class GameViewModel: ViewModel() {
 //        }
 //    }
 
-    val hahaha = "이건 틀렸어"
 
 
     fun getKindFilterItem(gameItemList: List<GameItem>): List<GameItem> {
