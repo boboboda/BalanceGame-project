@@ -153,6 +153,15 @@ class GameViewModel: ViewModel() {
         }
     }
 
+//    fun startTogetherGame() {
+//        viewModelScope.launch {
+//            val togetherGame = togetherGame(_gameItemFlow.value, codeMatchingGameItem)
+//        }
+//    }
+
+    val hahaha = "이건 틀렸어"
+
+
     fun getKindFilterItem(gameItemList: List<GameItem>): List<GameItem> {
         var tempGameItemList = gameItemList
         val kindGameItem = tempGameItemList.filter { it.itemKind == selectedKindItem.value }
