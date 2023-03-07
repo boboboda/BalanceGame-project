@@ -29,6 +29,8 @@ import com.bobodroid.balancegame.ui.theme.Purple200
 import com.bobodroid.balancegame.viewmodels.AuthViewModel
 import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.MyPageViewModel
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -39,7 +41,10 @@ fun MyPageScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, gam
 
     val myPageChangeListButton = myPageViewModel.myPageChangeListButton.collectAsState()
 
+    val userEmail = authViewModel.currentEmail
+
     val coroutineScope = rememberCoroutineScope()
+
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -56,13 +61,13 @@ fun MyPageScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, gam
 
             Text(text = "사용자:")
             Spacer(modifier = Modifier.width(10.dp))
-            Text(text = "구현중", color = Color.Blue)
+            Text(text = "$userEmail", color = Color.Blue)
 
             Spacer(modifier = Modifier.fillMaxWidth(0.1f))
 
             TextButton(onClick = {
-
                 coroutineScope.launch {
+                    Firebase.auth.signOut()
                     authViewModel.isLoggedIn.emit(false)
                 }
 

@@ -32,6 +32,10 @@ class GameViewModel: ViewModel() {
 
     private val _usedGameItem = MutableStateFlow<List<GameItem>>(emptyList())
 
+    private val _matchTextItem = MutableStateFlow<List<Compatibility>>(emptyList())
+
+
+
     val usedGameItem = _usedGameItem.asStateFlow()
 
     val singleGameState = MutableStateFlow(false)
@@ -94,6 +98,35 @@ class GameViewModel: ViewModel() {
         item15
     )
 
+    val text1 = Compatibility(
+        "이것 또한 천생연분! '반대가 끌리는 이유'라는 말도 있죠? 서로의 단점을 보완하고 감싸 안아주세요.",
+        "10개 중 한 개만 맞다니 그건 초등학교 받아쓰기 점수 이후로 처음이네요. 서로 노력하세요.",
+        "이제 알아가는 단계! 연애도 우정도 서로 알아가는 단계가 가장 설레는 시기입니다. 이 셀렘을 끝까지 기억해주세요.",
+        "이제 탐색하는 단계! 서로의 취향이 뭔지 서로 관찰하며 배려하는 인연이 되시길 바랍니다.",
+        "너를 안다고 생각한 내 생각이 착각이었어! 우린 아직 서로에 대해 몰라! 그러나 우린 그래도 좋아!",
+        "너와 나는 역시 반반! 양념반 후라이드반 이후로 최고의 천생연분!",
+        "반 이상 맞다니 간신히 과락은 면했습니다. 앞으로의 관계가 더욱 더 기대되는 우리 관계! 앞으로 쭉~ 함께 행복하기!!",
+        "럭키 세븐! 이라고 하죠? 두 분이 함께 하면 항상 좋은 일만 생길꺼에요.",
+        "8 대 2 완벽한 비율이 아닐까요? 100%보단 지금 이대로 이정도가 딱이야!!",
+        "너무 완벽하면 인간미가 없죠. 1개만 차이 나는 것이 오히려 좋아! 우리 지금 딱 좋아!",
+        "우린 천생연분! 절대 헤어지지 말고 오래오래 행복합시다.")
+
+    val text2 = Compatibility(
+        "상극! 드디어 정반대의 인간을 만났습니다. 싸우거나 서로의 부족한 점 채우거나, 선택은 두 분의 몫!",
+        "혹시 대화가 많이 부족하지 않으셨나요? 오늘부터 서로에게 1일 1질문을 하세요.",
+        "취향이 달라서 오히려 좋아! 상대방에 대해 오히려 호기심이 생기는 그런 단계입니다.",
+        "혹시 상대방이 가끔 이해가 되지 않을 때가 있으신가요? 당연합니다. 우리는 서로 다른 인격체! 취향을 다르지만 서로 존중하며 좋은 인연을 이어가세요.",
+        "나머지 60%를 서로에 대한 애정/우정으로 채우면 어떨까요? 상대방의 눈을 바라보며 상대의 감정을 읽어주세요. 분명 감동받을꺼에요.",
+        "50%나 같다니 두분은 아직 가능성이 아주 높은 희망적인 인연입니다. 좋은 인연인 두 사람이 서로를 이해하면서 나머지 50%를 채워주세요.",
+        "아깝습니다. 두 분의 취향이 아주 조금 차이가 나네요. 하지만 이 또한 취향 차이일뿐 취향존중!! 서로 장점만 바라보기!",
+        "혹시 진짜 가족? 거의 가족같은 관계! 이정도면 거의 가족입니다. 은근히 비슷한 취향을 가진 우리!!",
+        "서로 대화를 많이 하셨죠? 우리의 관계는 농익어 가는 그런 사이!",
+        "아주 아쉽습니다. 마지막 1개의 퍼즐을 서로의 대화로 채워주세요. 그럼 오래 오래 좋은 인연 이어 가실꺼에요.",
+        "두 분은 떨어지는 것은 대한민국의 손해! 서로 아껴주는 모습 보기 좋으니 이대로 쭉~~ 평생 좋은 인연을 이어가세요.")
+
+    val texts = listOf(text1, text2)
+
+
     val codeMatchingGameItem =
         userSaveGameItem.combine(gameCode.filterNot { it.isEmpty() }) { saveList, inputGameCode ->
             saveList.filter { it.GameCode.toString() == inputGameCode }
@@ -122,6 +155,8 @@ class GameViewModel: ViewModel() {
     init {
 
         _gameItemFlow.value = items
+
+        _matchTextItem.value =texts
 
         viewModelScope.launch {
             singleGameState.collectLatest {
@@ -256,7 +291,12 @@ class GameViewModel: ViewModel() {
 
     val secondUserSelect = MutableStateFlow(0)
 
-    val compatibilityPercent = MutableStateFlow("")
+    val compatibilityPercent = MutableStateFlow(0)
+
+    val compatibilityResultSum = MutableStateFlow(0)
+
+    val compatibilityText = MutableStateFlow("")
+
 
 
     fun actionSelect() {
@@ -274,19 +314,61 @@ class GameViewModel: ViewModel() {
 
             val compatibilityResult = if(firstUserSelect.value == secondUserSelect.value) true else false
 
+            val compatibilityCalculate = if(firstUserSelect.value == secondUserSelect.value) 1 else 0
+
+            compatibilityResultSum.value += compatibilityCalculate
+
             val items = compatibilityList.toMutableList().apply {
                 add(MatchSelect(compatibilityListNumber.value, firstUser!!, secondUser!!, compatibilityResult)) }
 
             _compatibilityValue.value = items
 
-//            compatibilityPercent.emit(finalCompatibility().plus(finalCompatibility()).toString())
-
             }
         }
 
 
+    fun lastResult() {
+        viewModelScope.launch {
+            compatibilityPercent.emit(finalCompatibility())
+        }
+    }
 
-    private fun finalCompatibility() = (if(firstUserSelect.value == secondUserSelect.value) 0 else 1) * 10
+    fun compatibilityMatch() {
+        viewModelScope.launch {
+            val compatibilityTextItem = _matchTextItem.value
+
+            val textRandom = compatibilityTextItem.random()
+
+            val percentText = when(compatibilityPercent.value) {
+
+                0 -> {textRandom.zero }
+                10 -> {textRandom.one }
+                20 -> {textRandom.two }
+                30 -> {textRandom.three }
+                40 -> {textRandom.four }
+                50 -> {textRandom.five }
+                60 -> {textRandom.six }
+                70 -> {textRandom.seven}
+                80 -> {textRandom.eight}
+                90 -> {textRandom.nine}
+                100 -> {textRandom.ten }
+
+                else -> ""
+            }
+
+            compatibilityText.emit(percentText)
+
+        }
+    }
+
+
+
+
+
+
+
+
+    private fun finalCompatibility() = compatibilityResultSum.value * 10
 
 
 
@@ -294,13 +376,22 @@ class GameViewModel: ViewModel() {
 
 
 
-sdf
 
-
+data class Compatibility(
+    val zero: String,
+    val one: String,
+    val two: String,
+    val three: String,
+    val four: String,
+    val five: String,
+    val six: String,
+    val seven: String,
+    val eight: String,
+    val nine: String,
+    val ten: String
+    )
 
 data class MatchSelect(val listNumber: Int, val firstUserSelect: String, val SecondUserSelect: String, val selectResult: Boolean)
-
-data class UsedGameItem(val gameId: Int = 0,  val resultGameValue: Int)
 
 data class UserSaveGame(val listNumber: Int, val GameCode: UUID = randomUUID(), val saveName: String, val gameItems: List<GameItem>)
 

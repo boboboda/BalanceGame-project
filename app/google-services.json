@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "903175765792",
+    "project_id": "balancegame-caa75",
+    "storage_bucket": "balancegame-caa75.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903175765792:android:afdd1fec2d54274ec6a145",
+        "android_client_info": {
+          "package_name": "com.bobodroid.balancegame"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "903175765792-o8eq7im2lu7t8vr04t6jpc2r59e6t7ha.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD38giadhZlfE99J2WINDAiFsR1lJs9sK0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "903175765792-o8eq7im2lu7t8vr04t6jpc2r59e6t7ha.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

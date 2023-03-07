@@ -30,10 +30,12 @@ import com.bobodroid.balancegame.viewmodels.AuthViewModel
 import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.HomeViewModel
 import com.bobodroid.balancegame.viewmodels.MyPageViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 const val TAG = "메인"
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val authViewModel: AuthViewModel by viewModels()
@@ -113,7 +115,7 @@ fun AuthNavHost(
             LoginScreen(routeAction, authViewModel)
         }
         composable(AuthRoute.REGISTER.routeName) {
-            RegisterScreen(routeAction)
+            RegisterScreen(authViewModel, routeAction)
         }
         composable(AuthRoute.PASSWORD.routeName) {
             PasswordFindScreen(routeAction)

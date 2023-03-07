@@ -40,6 +40,10 @@ fun ResultScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel){
 
     val coroutineScope = rememberCoroutineScope()
 
+    val compatibilityPercent = gameViewModel.compatibilityPercent.collectAsState()
+
+    val compatibilityPercentText = gameViewModel.compatibilityText.collectAsState()
+
     Column(modifier = Modifier
         .fillMaxSize()
         .background(BackgroundColor),
@@ -99,11 +103,15 @@ fun ResultScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel){
                     .background(MyPageSaveListColor)
                     .align(Alignment.CenterHorizontally)
                 ) {
-                    Column(modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Column(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.Start
                     ) {
-                        Text(text = "")
+                        Text(text = "궁합: ${compatibilityPercent.value} %", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Text(text = "${compatibilityPercentText.value}", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     }
 
                 }

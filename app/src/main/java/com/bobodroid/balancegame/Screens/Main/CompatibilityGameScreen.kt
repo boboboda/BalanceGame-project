@@ -113,6 +113,8 @@ fun CompatibilityGameScreen(routeAction: MainRouteAction, gameViewModel: GameVie
             CompatibilityViewDialog(onDismissRequest = { openDialog.value = it },
                 selected = {
                     gameViewModel.togetherGameItemReset()
+                    gameViewModel.lastResult()
+                    gameViewModel.compatibilityMatch()
                     routeAction.navTo(MainRoute.CompatibilityResult)
                 }
             )

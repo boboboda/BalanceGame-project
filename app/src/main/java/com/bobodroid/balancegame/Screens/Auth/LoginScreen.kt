@@ -5,10 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,13 +25,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel){
 
-    val emailInput = remember {
-        mutableStateOf("")
-    }
+    val emailInput = authViewModel.logInEmailInputFlow.collectAsState()
 
-    val passwordInput = remember {
-        mutableStateOf("")
-    }
+    val passwordInput = authViewModel.logInPasswordInputFlow.collectAsState()
 
     val isLoginBtnActive = emailInput.value.isNotEmpty() && passwordInput.value.isNotEmpty()
 
@@ -59,7 +52,9 @@ fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel){
             label = "이메일",
             value = emailInput.value,
             onValueChanged = {
-                emailInput.value = it
+                coroutineScope.launch {
+                    authViewModel.logInEmailInputFlow.emit(it)
+                }
             })
 
         Spacer(modifier = Modifier.height(30.dp))
@@ -68,7 +63,9 @@ fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel){
             label = "비밀번호",
             value = passwordInput.value,
             onValueChanged = {
-                passwordInput.value = it
+                coroutineScope.launch {
+                    authViewModel.logInPasswordInputFlow.emit(it)
+                }
             })
 
         Spacer(modifier = Modifier.height(30.dp))
@@ -78,6 +75,7 @@ fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel){
             title = "로그인",
             enabled = isLoginBtnActive,
             onClick = {
+                authViewModel.loginUser()
                 Log.d("웰컴스크린", "로그인 버튼 클릭")
             })
 
