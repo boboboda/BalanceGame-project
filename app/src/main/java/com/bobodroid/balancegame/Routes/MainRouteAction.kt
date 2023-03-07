@@ -15,6 +15,7 @@ sealed class MainRoute(
     object SingleGame: MainRoute("SINGLE_GAME",null,null, null)
     object CompatibilityGame: MainRoute("COMPATIBILITY_GAME", null,null, null)
     object CompatibilityResult: MainRoute("COMPATIBILITY_RESULT", null, null, null)
+    object Admin: MainRoute("ADMIN", null, null, null)
 }
 
 

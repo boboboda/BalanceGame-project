@@ -25,7 +25,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bobodroid.balancegame.TAG
+import com.bobodroid.balancegame.conponents.Buttons
 import com.bobodroid.balancegame.conponents.GameCodeDialog
+import com.bobodroid.balancegame.conponents.MakeQuestionDialog
 import com.bobodroid.balancegame.ui.theme.GameCordListColor
 import com.bobodroid.balancegame.ui.theme.MyPageButtonColor
 import com.bobodroid.balancegame.ui.theme.MyPageSaveListColor
@@ -115,6 +117,82 @@ fun GameSaveLists(gameViewModel: GameViewModel) {
 
     }
 }
+
+
+
+
+@Composable
+fun AdminQuestionList(gameViewModel: GameViewModel){
+
+
+    val openDialog = remember { mutableStateOf(false) }
+
+    val allGameItemList = gameViewModel.gameItemFlow.collectAsState()
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        MypageList(
+            listNumber = "리스트순서",
+            saveName = "질문",
+            itemCode = "제작자",
+            firstCardBackgroundColor = Color.White,
+            secondCardBackgroundColor = Color.White,
+            thirdCardBackgroundColor = Color.White,
+            gameCodeClicked = null
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+
+
+        LazyColumn(modifier = Modifier
+            .fillMaxWidth()
+            .height(450.dp)) {
+
+            items(allGameItemList.value, { item -> item.id!! }) { list ->
+                MypageList(
+                    listNumber = list.id.toString(),
+                    saveName = "${list.firstItem}/ ${list.secondItem} ",
+                    itemCode = list.makerName.toString(),
+                    firstCardBackgroundColor = MyPageButtonColor,
+                    secondCardBackgroundColor = MyPageSaveListColor,
+                    thirdCardBackgroundColor = GameCordListColor,
+                    gameCodeClicked = {  }
+                )
+
+                }
+            }
+        Row(modifier = Modifier.fillMaxWidth().padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center) {
+            Buttons(
+                label = "질문 만들기",
+                onClicked = {
+                    openDialog.value = true
+                },
+                color = MyPageButtonColor,
+                fontColor = Color.Black,
+                modifier = Modifier,
+                fontSize = 25
+            )
+        }
+
+        if (openDialog.value) {
+            MakeQuestionDialog(
+                onDismissRequest = {openDialog.value = it},
+                selected = {
+                    gameViewModel.makeGameItem()
+                    openDialog.value = false
+                },
+                closeSelected = { openDialog.value = false},
+                gameViewModel = gameViewModel
+            )
+        }
+
+        }
+
+    }
+
+
+
+
 
 
 

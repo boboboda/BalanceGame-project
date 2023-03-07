@@ -1,5 +1,7 @@
 package com.bobodroid.balancegame.viewmodels
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.State
 import androidx.compose.runtime.saveable.autoSaver
@@ -7,34 +9,51 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bobodroid.balancegame.TAG
 import com.bobodroid.balancegame.viewmodels.dataViewModels.GameItem
 import com.bobodroid.balancegame.viewmodels.dataViewModels.ItemKind
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 import java.util.UUID.randomUUID
+import kotlin.collections.HashMap
 
 class GameViewModel: ViewModel() {
 
+    val db = Firebase.firestore
+
+    // 저장된 게임 아이템
     private val _gameItemFlow = MutableStateFlow<List<GameItem>>(emptyList())
 
     val gameItemFlow = _gameItemFlow.asStateFlow()
 
+    // 게임 아이템 종류 선택
+
     private val _kindCurrentGameItem = MutableStateFlow<List<GameItem>>(emptyList())
 
-    val kindCurrentGameItem = _kindCurrentGameItem.asStateFlow()
+    // 랜덤아이템
 
     private val _currentRandomGameItem =
-        MutableStateFlow<GameItem>(GameItem(0, "", "00", "00", null ,ItemKind.FOOD))
+        MutableStateFlow<GameItem>(GameItem(randomUUID().toString(), "", "00", "00", 0 ,ItemKind.FOOD))
 
     val currentRandomGameItem: StateFlow<GameItem> = _currentRandomGameItem.asStateFlow()
+
+
+    // 사용한 게임 아이템
 
     private val _usedGameItem = MutableStateFlow<List<GameItem>>(emptyList())
 
     private val _matchTextItem = MutableStateFlow<List<Compatibility>>(emptyList())
 
 
+    // 게임  ui 관리
 
     val usedGameItem = _usedGameItem.asStateFlow()
 
@@ -62,22 +81,47 @@ class GameViewModel: ViewModel() {
 
     val gameCode = MutableStateFlow("")
 
+    //질문 만들기
 
-    val item1 = GameItem(1, "보보", "짬뽕", "짜장",null, ItemKind.FOOD)
-    val item2 = GameItem(2, "보보", "우동", "라면",null, ItemKind.FOOD)
-    val item3 = GameItem(3, "보보", "딸기", "포도",null, ItemKind.FOOD)
-    val item4 = GameItem(4, "보보", "수박", "레몬",null, ItemKind.FOOD)
-    val item5 = GameItem(5, "보보", "찍먹", "부먹",null, ItemKind.FOOD)
-    val item6 = GameItem(6, "보보", "초밥", "회",null, ItemKind.FOOD)
-    val item7 = GameItem(7, "보보", "고기", "생선",null, ItemKind.FOOD)
-    val item8 = GameItem(8, "보보", "콜라", "사이다",null, ItemKind.FOOD)
-    val item9 = GameItem(9, "보보", "고구마", "감자",null, ItemKind.FOOD)
-    val item10 = GameItem(10, "라민", "한우", "삼겹살",null, ItemKind.FOOD)
-    val item11 = GameItem(11, "라민", "우주", "바다",null, ItemKind.TRAVEL)
-    val item12 = GameItem(12, "라민", "강", "산",null, ItemKind.TRAVEL)
-    val item13 = GameItem(13, "라민", "엄마", "아빠",null, ItemKind.ETC)
-    val item14 = GameItem(14, "라민", "딸", "아들",null, ItemKind.ETC)
-    val item15 = GameItem(15, "라민", "키스", "포옹",null, ItemKind.LOVE)
+    val makeFirstGameItem = MutableStateFlow("")
+
+    val makeSecondGameItem = MutableStateFlow("")
+
+    val makeSelectedKindItem = MutableStateFlow(ItemKind.FOOD)
+
+    val makerName = MutableStateFlow("관리자")
+
+    fun makeGameItem() {
+        viewModelScope.launch {
+            val gameItems = _gameItemFlow.value
+            val addItems = gameItems.toMutableList().apply {
+                add(GameItem(randomUUID().toString(), makerName.value, makeFirstGameItem.value, makeSecondGameItem.value ,0, makeSelectedKindItem.value))
+            }.toList()
+            _gameItemFlow.value = addItems
+
+            val addItemsData = GameItem(randomUUID().toString(), makerName.value, makeFirstGameItem.value, makeSecondGameItem.value ,0, makeSelectedKindItem.value)
+
+            db.collection("gameitems").document("${randomUUID()}").set(addItemsData)
+
+        }
+    }
+
+
+    val item1 = GameItem(randomUUID().toString(), "보보", "짬뽕", "짜장",0, ItemKind.FOOD)
+    val item2 = GameItem(randomUUID().toString(), "보보", "우동", "라면",0, ItemKind.FOOD)
+    val item3 = GameItem(randomUUID().toString(), "보보", "딸기", "포도",0, ItemKind.FOOD)
+    val item4 = GameItem(randomUUID().toString(), "보보", "수박", "레몬",0, ItemKind.FOOD)
+    val item5 = GameItem(randomUUID().toString(), "보보", "찍먹", "부먹",0, ItemKind.FOOD)
+    val item6 = GameItem(randomUUID().toString(), "보보", "초밥", "회",0, ItemKind.FOOD)
+    val item7 = GameItem(randomUUID().toString(), "보보", "고기", "생선",0, ItemKind.FOOD)
+    val item8 = GameItem(randomUUID().toString(), "보보", "콜라", "사이다",0, ItemKind.FOOD)
+    val item9 = GameItem(randomUUID().toString(), "보보", "고구마", "감자",0, ItemKind.FOOD)
+    val item10 = GameItem(randomUUID().toString(), "라민", "한우", "삼겹살",0, ItemKind.FOOD)
+    val item11 = GameItem(randomUUID().toString(), "라민", "우주", "바다",0, ItemKind.TRAVEL)
+    val item12 = GameItem(randomUUID().toString(), "라민", "강", "산",0, ItemKind.TRAVEL)
+    val item13 = GameItem(randomUUID().toString(), "라민", "엄마", "아빠",0, ItemKind.ETC)
+    val item14 = GameItem(randomUUID().toString(), "라민", "딸", "아들",0, ItemKind.ETC)
+    val item15 = GameItem(randomUUID().toString(), "라민", "키스", "포옹",0, ItemKind.LOVE)
 
 
     val items = listOf(
@@ -143,7 +187,7 @@ class GameViewModel: ViewModel() {
 
     val togetherGameItem = _togetherGameItem.asStateFlow()
 
-    val _currentTogetherGameItem =  MutableStateFlow<GameItem>(GameItem(0, "", "00", "00", null, ItemKind.FOOD))
+    val _currentTogetherGameItem =  MutableStateFlow<GameItem>(GameItem(randomUUID().toString(), "", "00", "00", 0, ItemKind.FOOD))
 
     val currentTogetherGameItem = _currentTogetherGameItem.asStateFlow()
 
@@ -154,9 +198,17 @@ class GameViewModel: ViewModel() {
 
     init {
 
+
+//        val gameItem = GameItem(UUID.randomUUID().toString(), "테스트","테스트", "테스트", 0, ItemKind.FOOD)
+//
+//        db.collection("gameitems").document("game").set(gameItem)
+
+
+
+
         _gameItemFlow.value = items
 
-        _matchTextItem.value =texts
+        _matchTextItem.value = texts
 
         viewModelScope.launch {
             singleGameState.collectLatest {
@@ -360,11 +412,6 @@ class GameViewModel: ViewModel() {
 
         }
     }
-
-
-
-
-
 
 
 

@@ -1,5 +1,11 @@
 package com.bobodroid.balancegame.viewmodels.dataViewModels
 
+import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import java.util.UUID
+
 enum class ItemKind(val kindName: String) {
     ALL("모두"),
     FOOD("음식"),
@@ -9,4 +15,32 @@ enum class ItemKind(val kindName: String) {
     NULL("NULL")
 }
 
-data class GameItem (val id: Int? = null, val makerName: String? = "", val firstItem: String? = "", val secondItem: String? = "", val selectItem: Int? = 0, val itemKind: ItemKind? = null)
+data class GameItem (
+    var id: String = UUID.randomUUID().toString(),
+    var makerName: String = "",
+    var firstItem: String = "",
+    var secondItem: String = "",
+    var selectItem: Int = 0,
+    var itemKind: ItemKind = ItemKind.FOOD) {
+
+    constructor(data: QueryDocumentSnapshot) : this() {
+       this.id = data.id
+       this.makerName = data["makerName"] as String? ?: ""
+       this.firstItem = data["firstItem"] as String? ?: ""
+       this.secondItem = data["secondItem"] as String? ?: ""
+       this.selectItem = data["selectItem"] as Int? ?: 0
+       this.itemKind = data["itemKind"] as ItemKind? ?: ItemKind.FOOD
+    }
+
+    fun asHasMap() : HashMap<String, Any>{
+        return hashMapOf(
+            "id" to this.id,
+            "makerName" to this.makerName,
+            "firstItem" to this.firstItem,
+            "secondItem" to this.secondItem,
+            "selectItem" to this.selectItem,
+            "itemKind" to this.itemKind
+        )
+    }
+
+}

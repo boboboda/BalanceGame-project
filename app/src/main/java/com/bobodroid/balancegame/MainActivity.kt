@@ -70,7 +70,8 @@ fun MainNaHost(
     authRouteAction: AuthRouteAction,
     authViewModel: AuthViewModel,
     gameViewModel: GameViewModel,
-    myPageViewModel: MyPageViewModel
+    myPageViewModel: MyPageViewModel,
+    homeViewModel: HomeViewModel
 ) {
   NavHost(
       navController = mainNavController,
@@ -79,7 +80,7 @@ fun MainNaHost(
           HomeScreen(mainRouteAction, gameViewModel)
       }
       composable(MainRoute.MyPage.routeName!!){
-          MyPageScreen(mainRouteAction, authViewModel, gameViewModel, myPageViewModel)
+          MyPageScreen(mainRouteAction, authViewModel, gameViewModel, myPageViewModel, homeViewModel)
       }
       composable(MainRoute.DoItYourSelf.routeName!!){
           DiyScreen(mainRouteAction, authRouteAction, authViewModel)
@@ -92,6 +93,9 @@ fun MainNaHost(
       }
       composable(MainRoute.CompatibilityResult.routeName!!){
           ResultScreen(mainRouteAction, gameViewModel)
+      }
+      composable(MainRoute.Admin.routeName!!){
+          AdminScreen(mainRouteAction, authViewModel, gameViewModel, myPageViewModel, homeViewModel)
       }
 
   }
@@ -185,7 +189,8 @@ fun AppScreen(
                     authViewModel = authViewModel,
                     authRouteAction = authRouteAction,
                     gameViewModel = gameViewModel,
-                    myPageViewModel = myPageViewModel
+                    myPageViewModel = myPageViewModel,
+                    homeViewModel = homeViewModel
                 )
             }
         }

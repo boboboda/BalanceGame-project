@@ -27,6 +27,8 @@ import com.bobodroid.balancegame.ui.theme.BottomSelectedColor
 import com.bobodroid.balancegame.ui.theme.TopBarColor
 import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.HomeViewModel
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -61,6 +63,12 @@ fun MainBottomBar(
     val snackBarHostState = remember { SnackbarHostState() }
 
     val coroutineScope = rememberCoroutineScope()
+
+    val user = Firebase.auth.currentUser
+
+    val currentEmail = user?.let { it.email }
+
+    val adminUser = if(currentEmail == "kju9038@naver.com") true else false
 
 
 
@@ -113,8 +121,12 @@ fun MainBottomBar(
                                     actionLabel = "닫기", SnackbarDuration.Short)
                         } }
                         else
-                        {mainRouteAction.navTo(it)
+                        { if(adminUser)
+                        {mainRouteAction.navTo(MainRoute.Admin)
+                            homeViewModel.selectedCardId.value = it.selectValue!!
+                        } else {mainRouteAction.navTo(it)
                             homeViewModel.selectedCardId.value = it.selectValue!!}
+                        }
                     },
 
                 )

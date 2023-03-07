@@ -17,11 +17,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.runtime.*
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -349,5 +346,121 @@ fun CompatibilityViewDialog(
 }
 
 
+
+@SuppressLint("StateFlowValueCalledInComposition")
+@Composable
+fun MakeQuestionDialog(
+    onDismissRequest: (Boolean)->Unit,
+    selected: ()-> Unit,
+    closeSelected: ()->Unit,
+    gameViewModel: GameViewModel
+
+) {
+
+    val firstGameItem = gameViewModel.makeFirstGameItem.collectAsState()
+
+    val secondGameItem = gameViewModel.makeSecondGameItem.collectAsState()
+
+    val makeKindName = gameViewModel.makeSelectedKindItem.collectAsState()
+
+
+    val openDialog = remember { mutableStateOf(false) }
+
+    Dialog(
+        onDismissRequest = { onDismissRequest(false) },
+        properties = DialogProperties()
+    ) {
+        Column(modifier = Modifier
+            .wrapContentSize()
+            .padding(10.dp)
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(16.dp)
+            ),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(modifier = Modifier.padding(10.dp)) {
+                Text(text = "질문 만들기")
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Buttons(
+                label = "${makeKindName.value.kindName}",
+                onClicked = { openDialog.value = true },
+                color = MyPageButtonColor,
+                fontColor = Color.Black,
+                modifier = Modifier,
+                fontSize = 20
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+            TextField(
+                label = { Text(text = "첫번째 카드를 입력해주세요")},
+                value = firstGameItem.value,
+                onValueChange = { Input ->
+                    gameViewModel.makeFirstGameItem.value = Input
+                },
+                shape = RoundedCornerShape(10.dp),
+                maxLines = 1
+            )
+            Spacer(modifier = Modifier.height(25.dp))
+
+            TextField(
+                label = { Text(text = "두번째 카드를 입력해주세요")},
+                value = secondGameItem.value,
+                onValueChange = { Input ->
+                    gameViewModel.makeSecondGameItem.value = Input
+                },
+                shape = RoundedCornerShape(10.dp),
+                maxLines = 1
+            )
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 15.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center) {
+                Buttons(
+                    label = "예",
+                    onClicked = selected,
+                    color = Teal200,
+                    fontColor = Color.Black,
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(80.dp),
+                    fontSize = 15
+                )
+                Spacer(modifier = Modifier.width(30.dp))
+                Buttons(
+                    label = "닫기",
+                    onClicked = closeSelected,
+                    color = Teal200,
+                    fontColor = Color.Black,
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(80.dp),
+                    fontSize = 15
+                )
+            }
+
+            if (openDialog.value) {
+                KindDialog(
+                    onDismissRequest = {openDialog.value = it} ,
+                    selected = {
+                        gameViewModel.makeSelectedKindItem.value = it
+                    }
+                )
+            }
+
+
+
+        }
+    }
+}
 
 
