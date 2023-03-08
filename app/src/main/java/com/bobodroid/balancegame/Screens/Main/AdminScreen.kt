@@ -34,9 +34,7 @@ fun AdminScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, game
 
     val postsListScrollSate = rememberLazyListState()
 
-    val userEmail = Firebase.auth.currentUser.let { it?.email }
-
-    val adminUser = if(userEmail == "kju9038@naver.com") "관리자" else ""
+    val userNickname = gameViewModel.userNickname.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -56,7 +54,7 @@ fun AdminScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, game
 
             Text(text = "사용자:")
             Spacer(modifier = Modifier.width(10.dp))
-            Text(text = "$adminUser", color = Color.Blue)
+            Text(text = "${userNickname.value}", color = Color.Blue)
 
             Spacer(modifier = Modifier.fillMaxWidth(0.1f))
 

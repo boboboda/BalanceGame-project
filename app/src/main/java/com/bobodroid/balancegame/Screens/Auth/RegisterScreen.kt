@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
+import com.bobodroid.balancegame.MainActivity.Companion.TAG
 import com.bobodroid.balancegame.Routes.AuthRoute
 import com.bobodroid.balancegame.Routes.AuthRouteAction
 import com.bobodroid.balancegame.conponents.BaseButton
@@ -20,15 +22,20 @@ import com.bobodroid.balancegame.conponents.GameTextField
 import com.bobodroid.balancegame.conponents.LogInBackButton
 import com.bobodroid.balancegame.ui.theme.Purple200
 import com.bobodroid.balancegame.viewmodels.AuthViewModel
+import com.bobodroid.balancegame.viewmodels.GameViewModel
+import com.bobodroid.balancegame.viewmodels.MyPageViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(authViewModel: AuthViewModel,
-                   routeAction: AuthRouteAction) {
+                   routeAction: AuthRouteAction,
+                   myPageViewModel: MyPageViewModel, gameViewModel: GameViewModel) {
 
     val emailInput = authViewModel.registerEmailInputFlow.collectAsState()
 
+    val nickname = authViewModel.registerNicknameFlow.collectAsState()
 
     val passwordInput = authViewModel.registerPasswordInputFlow.collectAsState()
 
@@ -50,6 +57,8 @@ fun RegisterScreen(authViewModel: AuthViewModel,
     val coroutineScope = rememberCoroutineScope()
 
     val isLoading = authViewModel.registerIsLoadingFlow.collectAsState()
+
+    val registerSuccess = authViewModel.registerSuccessFlow.collectAsState()
 
     LaunchedEffect(key1 = Unit, block = {
         authViewModel.registerCompleteFlow.collectLatest {
@@ -97,6 +106,17 @@ fun RegisterScreen(authViewModel: AuthViewModel,
                 }
             })
 
+
+        GameTextField(
+            label = "닉네임",
+            value = nickname.value,
+            onValueChanged = {
+                coroutineScope.launch {
+                    authViewModel.registerNicknameFlow.emit(it)
+                }
+            })
+
+
         GamePasswordTextField(
             label = "비밀번호",
             value = passwordInput.value,
@@ -125,7 +145,10 @@ fun RegisterScreen(authViewModel: AuthViewModel,
                 Log.d("회원가입화면", "로그인 버튼 클릭")
                 coroutineScope.launch {
                     authViewModel.registerUser()
-                }
+
+                    gameViewModel.registerNickName()
+
+               }
 
             })
 

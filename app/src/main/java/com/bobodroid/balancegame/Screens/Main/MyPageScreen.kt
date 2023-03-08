@@ -42,7 +42,7 @@ fun MyPageScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, gam
 
     val myPageChangeListButton = myPageViewModel.myPageChangeListButton.collectAsState()
 
-    val userEmail = Firebase.auth.currentUser.let { it?.email }.orEmpty()
+    val userNickname = gameViewModel.userNickname.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -62,7 +62,7 @@ fun MyPageScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, gam
 
             Text(text = "사용자:")
             Spacer(modifier = Modifier.width(10.dp))
-            Text(text = "$userEmail", color = Color.Blue)
+            Text(text = "${userNickname.value}", color = Color.Blue)
 
             Spacer(modifier = Modifier.fillMaxWidth(0.1f))
 

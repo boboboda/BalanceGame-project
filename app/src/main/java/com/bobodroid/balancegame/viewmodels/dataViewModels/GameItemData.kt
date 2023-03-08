@@ -24,12 +24,12 @@ data class GameItem (
     var itemKind: ItemKind = ItemKind.FOOD) {
 
     constructor(data: QueryDocumentSnapshot) : this() {
-       this.id = data.id
-       this.makerName = data["makerName"] as String? ?: ""
-       this.firstItem = data["firstItem"] as String? ?: ""
-       this.secondItem = data["secondItem"] as String? ?: ""
-       this.selectItem = data["selectItem"] as Int? ?: 0
-       this.itemKind = data["itemKind"] as ItemKind? ?: ItemKind.FOOD
+        this.id = data.id
+        this.makerName = data["makerName"] as String? ?: ""
+        this.firstItem = data["firstItem"] as String? ?: ""
+        this.secondItem = data["secondItem"] as String? ?: ""
+        this.selectItem = data["selectItem"] as Int? ?: 0
+        this.itemKind = data["itemKind"] as ItemKind? ?: ItemKind.FOOD
     }
 
     fun asHasMap() : HashMap<String, Any>{

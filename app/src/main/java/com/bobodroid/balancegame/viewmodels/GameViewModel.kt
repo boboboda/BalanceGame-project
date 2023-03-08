@@ -9,16 +9,20 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bobodroid.balancegame.MainActivity
 import com.bobodroid.balancegame.TAG
 import com.bobodroid.balancegame.viewmodels.dataViewModels.GameItem
 import com.bobodroid.balancegame.viewmodels.dataViewModels.ItemKind
+import com.bobodroid.balancegame.viewmodels.dataViewModels.UserData
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -41,7 +45,7 @@ class GameViewModel: ViewModel() {
     // 랜덤아이템
 
     private val _currentRandomGameItem =
-        MutableStateFlow<GameItem>(GameItem(randomUUID().toString(), "", "00", "00", 0 ,ItemKind.FOOD))
+        MutableStateFlow<GameItem>(GameItem(randomUUID().toString(), "","00", "00", 0 ,ItemKind.FOOD))
 
     val currentRandomGameItem: StateFlow<GameItem> = _currentRandomGameItem.asStateFlow()
 
@@ -91,20 +95,49 @@ class GameViewModel: ViewModel() {
 
     val makerName = MutableStateFlow("관리자")
 
-    fun makeGameItem() {
-        viewModelScope.launch {
-            val gameItems = _gameItemFlow.value
-            val addItems = gameItems.toMutableList().apply {
-                add(GameItem(randomUUID().toString(), makerName.value, makeFirstGameItem.value, makeSecondGameItem.value ,0, makeSelectedKindItem.value))
-            }.toList()
-            _gameItemFlow.value = addItems
 
-            val addItemsData = GameItem(randomUUID().toString(), makerName.value, makeFirstGameItem.value, makeSecondGameItem.value ,0, makeSelectedKindItem.value)
 
-            db.collection("gameitems").document("${randomUUID()}").set(addItemsData)
+    fun makeGameItem(){
 
-        }
+        // 해시맵 만들기
+        val newGameItem = GameItem(randomUUID().toString(),makerName.value, makeFirstGameItem.value, makeSecondGameItem.value, 0, makeSelectedKindItem.value)
+
+        // Add a new document with a generated ID
+        db.collection("gameitems")
+            .add(newGameItem.asHasMap())
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                val addedGameItems = _gameItemFlow.value.toMutableList()
+                addedGameItems.add(0, newGameItem)
+                viewModelScope.launch {
+                    _gameItemFlow.emit(addedGameItems)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+                }
+            }
+
+
+    private fun fetchAllGameItems(){
+        db.collection("gameitems")
+            .get()
+            .addOnSuccessListener { result ->
+                viewModelScope.launch {
+
+                   val fetchedgameItems = result.toObjects(GameItem::class.java)
+                    _gameItemFlow.emit(fetchedgameItems)
+
+                    Log.d(TAG, "DocData ${result.documents}")
+
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(MainActivity.TAG, "Error getting documents.", exception)
+            }
     }
+
+
 
 
     val item1 = GameItem(randomUUID().toString(), "보보", "짬뽕", "짜장",0, ItemKind.FOOD)
@@ -196,21 +229,71 @@ class GameViewModel: ViewModel() {
         saveList.map { it.GameCode.toString() == inputGameCode }.last() }
 
 
+
+
+
+
+    fun loadUserData() {
+        db.collection("userdatas")
+            .get()
+            .addOnSuccessListener { result ->
+                viewModelScope.launch {
+
+                    Log.d(TAG, "닉네임 불러오기 성공 ${result.documents}")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error getting UserData documents.", exception)
+            }
+    }
+
+    val registerEmailInputFlow = MutableStateFlow("")
+
+    val registerNicknameFlow = MutableStateFlow("")
+
+    val userEmail = MutableStateFlow("")
+
+    val userNickname = MutableStateFlow("")
+
+    val currentEmail = Firebase.auth.currentUser.let { it?.email }
+
+    fun registerNickName() {
+        val newUserData = UserData(registerEmailInputFlow.value, registerNicknameFlow.value)
+
+        db.collection("userdatas")
+            .add(newUserData.asHasMap())
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                val addEmail = userEmail
+                val addUserNickname = userNickname
+                viewModelScope.launch {
+                    addEmail.emit(newUserData.email)
+                    addUserNickname.emit(newUserData.nickname)
+                }
+
+            }
+            .addOnFailureListener { e ->
+                Log.d(TAG, "닉네임 생성 실패", e)
+            }
+    }
+
+
+
+
+
+
     init {
 
+//        _gameItemFlow.value = items
 
-//        val gameItem = GameItem(UUID.randomUUID().toString(), "테스트","테스트", "테스트", 0, ItemKind.FOOD)
-//
-//        db.collection("gameitems").document("game").set(gameItem)
+        loadUserData()
 
-
-
-
-        _gameItemFlow.value = items
+        fetchAllGameItems()
 
         _matchTextItem.value = texts
 
         viewModelScope.launch {
+            delay(1500)
             singleGameState.collectLatest {
                 selectedKindItem
                     .collectLatest {
@@ -218,9 +301,7 @@ class GameViewModel: ViewModel() {
                         _kindCurrentGameItem.emit(kindFilterItem)
                         singleGameStage
                             .collectLatest {
-                                val (shirnkedList, randomGameItem) = getRandomGameItem(
-                                    _kindCurrentGameItem.value
-                                )
+                                val (shirnkedList, randomGameItem) = getRandomGameItem(_kindCurrentGameItem.value)
                                 _kindCurrentGameItem.emit(shirnkedList)
                                 _currentRandomGameItem.emit(randomGameItem)
                             }

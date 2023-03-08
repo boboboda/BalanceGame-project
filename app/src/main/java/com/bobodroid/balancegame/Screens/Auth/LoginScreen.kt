@@ -20,16 +20,19 @@ import com.bobodroid.balancegame.conponents.LogInBackButton
 import com.bobodroid.balancegame.ui.theme.Primary
 import com.bobodroid.balancegame.ui.theme.Purple200
 import com.bobodroid.balancegame.viewmodels.AuthViewModel
+import com.bobodroid.balancegame.viewmodels.GameViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel){
+fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel, gameViewModel: GameViewModel){
 
     val emailInput = authViewModel.logInEmailInputFlow.collectAsState()
 
     val passwordInput = authViewModel.logInPasswordInputFlow.collectAsState()
 
     val isLoginBtnActive = emailInput.value.isNotEmpty() && passwordInput.value.isNotEmpty()
+
+    val isLoggedIn = authViewModel.isLoggedIn.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -76,6 +79,9 @@ fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel){
             enabled = isLoginBtnActive,
             onClick = {
                 authViewModel.loginUser()
+                coroutineScope.launch {
+                    gameViewModel.loadUserData()
+                }
                 Log.d("웰컴스크린", "로그인 버튼 클릭")
             })
 
@@ -93,7 +99,9 @@ fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel){
 
             TextButton(onClick = {
                 coroutineScope.launch {
-                    authViewModel.isLoggedIn.emit(true) }
+                    authViewModel.isLoggedIn.emit(true)
+
+                }
 
             }) {
                 Text(text = "로그인완료", color = Primary)

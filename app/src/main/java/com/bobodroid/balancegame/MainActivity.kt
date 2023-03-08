@@ -38,6 +38,10 @@ const val TAG = "메인"
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    companion object {
+        const val TAG = "메인 액티비티"
+    }
+
     private val authViewModel: AuthViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
     private val gameViewModel: GameViewModel by viewModels()
@@ -107,7 +111,9 @@ fun AuthNavHost(
     authNavController: NavHostController,
     startRouter: AuthRoute = AuthRoute.WELCOME,
     routeAction: AuthRouteAction,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    myPageViewModel: MyPageViewModel,
+    gameViewModel: GameViewModel
 ){
     NavHost(
         navController = authNavController,
@@ -116,10 +122,10 @@ fun AuthNavHost(
            WelcomeScreen(routeAction)
         }
         composable(AuthRoute.LOGIN.routeName) {
-            LoginScreen(routeAction, authViewModel)
+            LoginScreen(routeAction, authViewModel, gameViewModel)
         }
         composable(AuthRoute.REGISTER.routeName) {
-            RegisterScreen(authViewModel, routeAction)
+            RegisterScreen(authViewModel, routeAction, myPageViewModel, gameViewModel)
         }
         composable(AuthRoute.PASSWORD.routeName) {
             PasswordFindScreen(routeAction)
@@ -159,7 +165,9 @@ fun AppScreen(
         AuthNavHost(
             authNavController = authNavController,
             routeAction = authRouteAction ,
-            authViewModel = authViewModel)
+            authViewModel = authViewModel,
+        myPageViewModel = myPageViewModel,
+        gameViewModel = gameViewModel)
 
     }
 
