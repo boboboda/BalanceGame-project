@@ -8,6 +8,8 @@ import com.bobodroid.balancegame.TAG
 import com.bobodroid.balancegame.data.AuthRepository
 import com.bobodroid.balancegame.util.Resource
 import com.bobodroid.balancegame.viewmodels.dataViewModels.UserData
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -47,6 +49,8 @@ class AuthViewModel @Inject constructor(
     var logInPasswordInputFlow = MutableStateFlow("")
 
     var logInIsLoadingFlow = MutableStateFlow(false)
+
+    val needAuthContext = MutableStateFlow(false)
 
 
 
@@ -92,6 +96,74 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
+
+
+    val db = Firebase.firestore
+
+
+    val userEmail = MutableStateFlow("")
+
+    val userNickname = MutableStateFlow("")
+
+    val currentUserEmail = MutableStateFlow("")
+
+    fun loadUserData() {
+        db.collection("userdatas")
+            .get()
+            .addOnSuccessListener { result ->
+                viewModelScope.launch {
+
+
+
+                    val userDatas = result.toObjects(UserData::class.java)
+
+//                    val matchUserEmail = userDatas.filter { it.email == currentEmail!! }
+//
+//
+////                    val matchUserNickname = matchUserEmail.last().nickname
+//
+//                    delay(1000)
+//                    userNickname.emit(matchUserNickname)
+
+
+//                    Log.d(TAG, "매칭 이메일  ${matchUserEmail.last().email}")
+//                    Log.d(TAG, "매칭 닉네임  ${matchUserEmail.last().nickname}")
+//                    Log.d(TAG, "매칭 닉네임  ${matchUserNickname}")
+
+
+                    Log.d(TAG, "닉네임 불러오기 성공 ${result.documents}")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error getting UserData documents.", exception)
+            }
+    }
+
+
+    fun registerNickName() {
+        val newUserData = UserData(registerEmailInputFlow.value, registerNicknameFlow.value)
+
+        db.collection("userdatas")
+            .add(newUserData.asHasMap())
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                val addEmail = userEmail
+                val addUserNickname = userNickname
+                viewModelScope.launch {
+                    addEmail.emit(newUserData.email)
+                    addUserNickname.emit(newUserData.nickname)
+                }
+
+            }
+            .addOnFailureListener { e ->
+                Log.d(TAG, "닉네임 생성 실패", e)
+            }
+    }
+
+
+
+
+
 
 
 }

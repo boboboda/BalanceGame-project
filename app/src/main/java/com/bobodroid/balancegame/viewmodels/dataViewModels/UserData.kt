@@ -16,7 +16,7 @@ data class UserData(
     fun asHasMap() : HashMap<String, Any>{
         return hashMapOf(
             "email" to this.email,
-            "makerName" to this.nickname
+            "nickname" to this.nickname
         )
     }
 

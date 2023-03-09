@@ -36,13 +36,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun MyPageScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, gameViewModel: GameViewModel, myPageViewModel: MyPageViewModel, homeViewModel: HomeViewModel){
+fun MyPageScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, myPageViewModel: MyPageViewModel, homeViewModel: HomeViewModel, gameViewModel: GameViewModel){
 
     val postsListScrollSate = rememberLazyListState()
 
     val myPageChangeListButton = myPageViewModel.myPageChangeListButton.collectAsState()
 
-    val userNickname = gameViewModel.userNickname.collectAsState()
+    val userNickname = authViewModel.userNickname.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -67,8 +67,8 @@ fun MyPageScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, gam
             Spacer(modifier = Modifier.fillMaxWidth(0.1f))
 
             TextButton(onClick = {
+                Firebase.auth.signOut()
                 coroutineScope.launch {
-                    Firebase.auth.signOut()
                     routeAction.navTo(MainRoute.Home)
                     authViewModel.isLoggedIn.emit(false)
                     homeViewModel.selectedCardId.emit(1)

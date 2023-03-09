@@ -233,49 +233,12 @@ class GameViewModel: ViewModel() {
 
 
 
-    fun loadUserData() {
-        db.collection("userdatas")
-            .get()
-            .addOnSuccessListener { result ->
-                viewModelScope.launch {
 
-                    Log.d(TAG, "닉네임 불러오기 성공 ${result.documents}")
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.d(TAG, "Error getting UserData documents.", exception)
-            }
-    }
 
-    val registerEmailInputFlow = MutableStateFlow("")
 
-    val registerNicknameFlow = MutableStateFlow("")
 
-    val userEmail = MutableStateFlow("")
 
-    val userNickname = MutableStateFlow("")
 
-    val currentEmail = Firebase.auth.currentUser.let { it?.email }
-
-    fun registerNickName() {
-        val newUserData = UserData(registerEmailInputFlow.value, registerNicknameFlow.value)
-
-        db.collection("userdatas")
-            .add(newUserData.asHasMap())
-            .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-                val addEmail = userEmail
-                val addUserNickname = userNickname
-                viewModelScope.launch {
-                    addEmail.emit(newUserData.email)
-                    addUserNickname.emit(newUserData.nickname)
-                }
-
-            }
-            .addOnFailureListener { e ->
-                Log.d(TAG, "닉네임 생성 실패", e)
-            }
-    }
 
 
 
@@ -286,14 +249,14 @@ class GameViewModel: ViewModel() {
 
 //        _gameItemFlow.value = items
 
-        loadUserData()
+//        loadUserData()
 
         fetchAllGameItems()
 
         _matchTextItem.value = texts
 
         viewModelScope.launch {
-            delay(1500)
+            delay(2000)
             singleGameState.collectLatest {
                 selectedKindItem
                     .collectLatest {

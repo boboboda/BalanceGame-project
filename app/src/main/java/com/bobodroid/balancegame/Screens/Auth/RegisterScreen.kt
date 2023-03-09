@@ -146,7 +146,7 @@ fun RegisterScreen(authViewModel: AuthViewModel,
                 coroutineScope.launch {
                     authViewModel.registerUser()
 
-                    gameViewModel.registerNickName()
+                    authViewModel.registerNickName()
 
                }
 

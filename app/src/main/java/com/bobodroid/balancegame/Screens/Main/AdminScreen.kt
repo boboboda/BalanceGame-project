@@ -34,7 +34,7 @@ fun AdminScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, game
 
     val postsListScrollSate = rememberLazyListState()
 
-    val userNickname = gameViewModel.userNickname.collectAsState()
+    val userNickname = authViewModel.userNickname.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 

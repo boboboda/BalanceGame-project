@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 import com.bobodroid.balancegame.MainRoute
 import com.bobodroid.balancegame.Routes.AuthRoute
 import com.bobodroid.balancegame.Routes.AuthRouteAction
+import com.bobodroid.balancegame.TAG
 import com.bobodroid.balancegame.conponents.BaseButton
 import com.bobodroid.balancegame.conponents.GamePasswordTextField
 import com.bobodroid.balancegame.conponents.GameTextField
@@ -21,6 +22,8 @@ import com.bobodroid.balancegame.ui.theme.Primary
 import com.bobodroid.balancegame.ui.theme.Purple200
 import com.bobodroid.balancegame.viewmodels.AuthViewModel
 import com.bobodroid.balancegame.viewmodels.GameViewModel
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
 @Composable
@@ -35,6 +38,7 @@ fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel, game
     val isLoggedIn = authViewModel.isLoggedIn.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
+
 
     Column(
         modifier = Modifier.padding(horizontal = 22.dp),
@@ -80,7 +84,7 @@ fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel, game
             onClick = {
                 authViewModel.loginUser()
                 coroutineScope.launch {
-                    gameViewModel.loadUserData()
+                    authViewModel.loadUserData()
                 }
                 Log.d("웰컴스크린", "로그인 버튼 클릭")
             })

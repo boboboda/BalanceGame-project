@@ -84,13 +84,13 @@ fun MainNaHost(
           HomeScreen(mainRouteAction, gameViewModel)
       }
       composable(MainRoute.MyPage.routeName!!){
-          MyPageScreen(mainRouteAction, authViewModel, gameViewModel, myPageViewModel, homeViewModel)
+          MyPageScreen(mainRouteAction, authViewModel, myPageViewModel, homeViewModel, gameViewModel)
       }
       composable(MainRoute.DoItYourSelf.routeName!!){
           DiyScreen(mainRouteAction, authRouteAction, authViewModel)
       }
       composable(MainRoute.SingleGame.routeName!!){
-          SingleGameScreen(mainRouteAction, gameViewModel )
+          SingleGameScreen(mainRouteAction, gameViewModel)
       }
       composable(MainRoute.CompatibilityGame.routeName!!){
           CompatibilityGameScreen(mainRouteAction, gameViewModel)
@@ -109,7 +109,7 @@ fun MainNaHost(
 @Composable
 fun AuthNavHost(
     authNavController: NavHostController,
-    startRouter: AuthRoute = AuthRoute.WELCOME,
+    startRouter: AuthRoute = AuthRoute.LOGIN,
     routeAction: AuthRouteAction,
     authViewModel: AuthViewModel,
     myPageViewModel: MyPageViewModel,
@@ -118,9 +118,6 @@ fun AuthNavHost(
     NavHost(
         navController = authNavController,
         startDestination = startRouter.routeName) {
-        composable(AuthRoute.WELCOME.routeName) {
-           WelcomeScreen(routeAction)
-        }
         composable(AuthRoute.LOGIN.routeName) {
             LoginScreen(routeAction, authViewModel, gameViewModel)
         }
@@ -133,6 +130,10 @@ fun AuthNavHost(
     }
 }
 
+
+//composable(AuthRoute.WELCOME.routeName) {
+//    WelcomeScreen(routeAction)
+//}
 
 
 
@@ -159,19 +160,14 @@ fun AppScreen(
 
     val mainBackStack = authNavController.currentBackStackEntryAsState()
 
+    val selectedBottombar= homeViewModel.selectedCardId.collectAsState()
 
-    if(!isLoggedIn.value) {
+    val needAuth = authViewModel.needAuthContext.collectAsState()
 
-        AuthNavHost(
-            authNavController = authNavController,
-            routeAction = authRouteAction ,
-            authViewModel = authViewModel,
-        myPageViewModel = myPageViewModel,
-        gameViewModel = gameViewModel)
 
-    }
+    if(!needAuth.value)
 
-    else {
+    {
         Scaffold(
             topBar = { MainTopBar() },
             bottomBar = {
@@ -179,7 +175,8 @@ fun AppScreen(
                     mainRouteAction,
                     mainBackStack.value,
                     gameViewModel,
-                    homeViewModel
+                    homeViewModel,
+                    authViewModel
                 )
             },
 
@@ -202,7 +199,60 @@ fun AppScreen(
                 )
             }
         }
+
+    } else {
+
+        if(!isLoggedIn.value) {
+
+            AuthNavHost(
+                authNavController = authNavController,
+                routeAction = authRouteAction ,
+                authViewModel = authViewModel,
+                myPageViewModel = myPageViewModel,
+                gameViewModel = gameViewModel)
+
+        }
+
+        else {
+            Scaffold(
+                topBar = { MainTopBar() },
+                bottomBar = {
+                    MainBottomBar(
+                        mainRouteAction,
+                        mainBackStack.value,
+                        gameViewModel,
+                        homeViewModel,
+                        authViewModel
+                    )
+                },
+
+                ) {
+                Column(
+                    modifier = Modifier.padding(
+                        top = it.calculateTopPadding(),
+                        bottom = it.calculateBottomPadding()
+                    )
+                ) {
+
+                    MainNaHost(
+                        mainNavController = mainNavController,
+                        mainRouteAction = mainRouteAction,
+                        authViewModel = authViewModel,
+                        authRouteAction = authRouteAction,
+                        gameViewModel = gameViewModel,
+                        myPageViewModel = myPageViewModel,
+                        homeViewModel = homeViewModel
+                    )
+                }
+            }
+        }
+
     }
+
+
+
+
+
 }
 
 

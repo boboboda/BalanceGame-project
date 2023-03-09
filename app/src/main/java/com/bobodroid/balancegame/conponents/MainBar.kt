@@ -2,6 +2,7 @@ package com.bobodroid.balancegame
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.EdgeEffect
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bobodroid.balancegame.ui.theme.BottomColor
 import com.bobodroid.balancegame.ui.theme.BottomSelectedColor
 import com.bobodroid.balancegame.ui.theme.TopBarColor
+import com.bobodroid.balancegame.viewmodels.AuthViewModel
 import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.HomeViewModel
 import com.google.firebase.auth.ktx.auth
@@ -54,7 +56,9 @@ fun MainBottomBar(
     mainRouteBackStack: NavBackStackEntry?,
     gameViewModel: GameViewModel,
     homeViewModel: HomeViewModel,
+    authViewModel: AuthViewModel
 ) {
+
 
     val selectedCardId = homeViewModel.selectedCardId.collectAsState()
 
@@ -68,7 +72,13 @@ fun MainBottomBar(
 
     val currentEmail = user?.let { it.email }
 
+    Log.d(TAG, "${currentEmail}")
+
     val adminUser = if(currentEmail == "kju9038@naver.com") true else false
+
+    val needAuth = authViewModel.needAuthContext.collectAsState()
+
+    val isLoggedIn = authViewModel.isLoggedIn.collectAsState()
 
 
 
@@ -115,16 +125,22 @@ fun MainBottomBar(
                     selected = (mainRouteBackStack?.destination?.route) == it.routeName,
                     onClick = {
 
+
+
                         if(isPlayGame.value == false)
                         {coroutineScope.launch {
                                 snackBarHostState.showSnackbar("게임이 진행중입니다. 종료 후 시도하세요.",
                                     actionLabel = "닫기", SnackbarDuration.Short)
                         } }
                         else
-                        { if(adminUser)
+                        {
+                            coroutineScope.launch { authViewModel.needAuthContext.emit(true) }
+                            if(isLoggedIn.value == false) return@BottomNavigationItem
+                            if(adminUser)
                         {mainRouteAction.navTo(MainRoute.Admin)
                             homeViewModel.selectedCardId.value = it.selectValue!!
-                        } else {mainRouteAction.navTo(it)
+                        } else {
+                            mainRouteAction.navTo(it)
                             homeViewModel.selectedCardId.value = it.selectValue!!}
                         }
                     },
@@ -155,7 +171,10 @@ fun MainBottomBar(
                         }
                     }
                     else
-                    { mainRouteAction.navTo(it)
+                    {
+                        coroutineScope.launch { authViewModel.needAuthContext.emit(true) }
+                        if(isLoggedIn.value == false) return@BottomNavigationItem
+                        mainRouteAction.navTo(it)
                         homeViewModel.selectedCardId.value = it.selectValue!! } }
                 )
         }
