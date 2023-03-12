@@ -10,7 +10,7 @@ sealed class MainRoute(
     open val iconResId: Int? = null
 ) {
     object Home: MainRoute("HOME", "홈", 1 ,R.drawable.home)
-    object MyPage: MainRoute("My_PAGE","마이페이지",2, R.drawable.profile)
+    object SavePage: MainRoute("Save_PAGE","저장리스트",2, R.drawable.ic_save)
     object DoItYourSelf: MainRoute("DO_IT_YOUR_SELF","DIY", 3, R.drawable.ic_create)
     object SingleGame: MainRoute("SINGLE_GAME",null,null, null)
     object CompatibilityGame: MainRoute("COMPATIBILITY_GAME", null,null, null)

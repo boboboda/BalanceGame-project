@@ -203,7 +203,7 @@ fun LogInBackButton(
 @Composable
 fun MyPageButtons(label: String,
                   id: Int,
-                  selectedId:Int,
+                  selectedId:Int?,
                   onClicked:((Int)->Unit)?,
                   fontColor: Color,
                   enabled: Boolean = true,
@@ -224,7 +224,7 @@ fun MyPageButtons(label: String,
             disabledContentColor = Color.White,
             disabledBackgroundColor = Color.Gray),
         modifier = modifier,
-        enabled = enabled,
+        enabled = enabled!!,
         onClick = {onClicked?.invoke(currentCardId)})
     {
         Text(text = label, fontSize = fontSize.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(0.dp))

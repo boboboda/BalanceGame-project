@@ -15,12 +15,14 @@ import com.bobodroid.balancegame.conponents.SaveQuestionDialog
 import com.bobodroid.balancegame.conponents.SingleGameListView
 import com.bobodroid.balancegame.ui.theme.BottomSelectedColor
 import com.bobodroid.balancegame.ui.theme.Purple200
+import com.bobodroid.balancegame.viewmodels.AuthViewModel
 import com.bobodroid.balancegame.viewmodels.GameViewModel
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("StateFlowValueCalledInComposition", "CoroutineCreationDuringComposition")
 @Composable
-fun SingleGameScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel) {
+fun SingleGameScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel, authViewModel: AuthViewModel) {
 
 
     val gameStage = gameViewModel.singleGameStage.collectAsState()
@@ -29,6 +31,7 @@ fun SingleGameScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel)
 
     val openDialog = remember { mutableStateOf(false) }
 
+    val coroutineScope = rememberCoroutineScope()
 
 
 
@@ -101,18 +104,21 @@ fun SingleGameScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel)
             SaveQuestionDialog(
                 onDismissRequest = {openDialog.value = it},
                 saveSelected = {
-                    gameViewModel.listNumber.value += 1
-                    gameViewModel.saveGameItem()
-                    gameViewModel.singleGameState.value = true
-                    gameViewModel.gameItemReset()
-                    gameViewModel.isPlayGame.value = true
-                    routeAction.navTo(MainRoute.Home)
+                    coroutineScope.launch {
+                        gameViewModel.saveGameItem()
+                        gameViewModel.singleGameState.value = true
+                        gameViewModel.gameItemReset()
+                        gameViewModel.isPlayGame.value = true
+                        routeAction.navTo(MainRoute.Home) }
                                },
                 closeSelected = {
-                    gameViewModel.singleGameState.value = true
-                    gameViewModel.gameItemReset()
-                    gameViewModel.isPlayGame.value = true
-                    routeAction.navTo(MainRoute.Home) },
+                    coroutineScope.launch {
+                        gameViewModel.singleGameState.value = true
+                        gameViewModel.gameItemReset()
+                        gameViewModel.isPlayGame.value = true
+                        routeAction.navTo(MainRoute.Home)
+                    }
+                     },
                 gameViewModel
             )
         }

@@ -2,6 +2,8 @@ package com.bobodroid.balancegame.di
 
 import com.bobodroid.balancegame.data.AuthRepository
 import com.bobodroid.balancegame.data.AuthRepositoryImpl
+import com.bobodroid.balancegame.viewmodels.dataViewModels.UserDatabaseDao
+import com.bobodroid.balancegame.viewmodels.dataViewModels.UserIdRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
@@ -24,4 +26,16 @@ object AppModule {
     fun providesRepositoryImpl(firebaseAuth: FirebaseAuth): AuthRepository{
         return AuthRepositoryImpl(firebaseAuth)
     }
+
+    @Singleton
+    @Provides
+    fun provideUserDataRepository(
+        userIdDao: UserDatabaseDao) : UserIdRepository {
+        return UserIdRepository(
+            userIdDao
+        )
+    }
+
+
+
 }

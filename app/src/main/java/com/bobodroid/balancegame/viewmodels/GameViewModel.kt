@@ -11,27 +11,33 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bobodroid.balancegame.MainActivity
 import com.bobodroid.balancegame.TAG
-import com.bobodroid.balancegame.viewmodels.dataViewModels.GameItem
-import com.bobodroid.balancegame.viewmodels.dataViewModels.ItemKind
-import com.bobodroid.balancegame.viewmodels.dataViewModels.UserData
+import com.bobodroid.balancegame.viewmodels.dataViewModels.*
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 import java.util.UUID.randomUUID
+import javax.inject.Inject
 import kotlin.collections.HashMap
 
-class GameViewModel: ViewModel() {
+@HiltViewModel
+class GameViewModel @Inject constructor(
+    private val userIdRepository: UserIdRepository): ViewModel() {
 
     val db = Firebase.firestore
+
+    val localId = MutableStateFlow("")
 
     // 저장된 게임 아이템
     private val _gameItemFlow = MutableStateFlow<List<GameItem>>(emptyList())
@@ -45,7 +51,7 @@ class GameViewModel: ViewModel() {
     // 랜덤아이템
 
     private val _currentRandomGameItem =
-        MutableStateFlow<GameItem>(GameItem(randomUUID().toString(), "","00", "00", 0 ,ItemKind.FOOD))
+        MutableStateFlow<GameItem>(GameItem(randomUUID().toString(), "","00", "00",true ,0 ,ItemKind.FOOD))
 
     val currentRandomGameItem: StateFlow<GameItem> = _currentRandomGameItem.asStateFlow()
 
@@ -81,8 +87,6 @@ class GameViewModel: ViewModel() {
 
     val userSaveGameItem = _userSaveGameItem.asStateFlow()
 
-    val listNumber = MutableStateFlow(0)
-
     val gameCode = MutableStateFlow("")
 
     //질문 만들기
@@ -100,7 +104,7 @@ class GameViewModel: ViewModel() {
     fun makeGameItem(){
 
         // 해시맵 만들기
-        val newGameItem = GameItem(randomUUID().toString(),makerName.value, makeFirstGameItem.value, makeSecondGameItem.value, 0, makeSelectedKindItem.value)
+        val newGameItem = GameItem(randomUUID().toString(),makerName.value, makeFirstGameItem.value, makeSecondGameItem.value, false ,0, makeSelectedKindItem.value)
 
         // Add a new document with a generated ID
         db.collection("gameitems")
@@ -119,16 +123,17 @@ class GameViewModel: ViewModel() {
             }
 
 
+    val mainGameItemLoadSuccessFlow = MutableStateFlow(false)
+
     private fun fetchAllGameItems(){
         db.collection("gameitems")
+            .whereEqualTo("private", true)
             .get()
             .addOnSuccessListener { result ->
                 viewModelScope.launch {
-
+                    mainGameItemLoadSuccessFlow.emit(true)
                    val fetchedgameItems = result.toObjects(GameItem::class.java)
                     _gameItemFlow.emit(fetchedgameItems)
-
-                    Log.d(TAG, "DocData ${result.documents}")
 
                 }
             }
@@ -137,43 +142,54 @@ class GameViewModel: ViewModel() {
             }
     }
 
+    val id = "[d467319f-2706-40a5-8360-4e5415919c3b]"
+
+    fun fetchAllSaveItems() {
+        db.collection("saveGameItems")
+            .whereEqualTo("id", localId.value)
+            .get()
+            .addOnSuccessListener{ result ->
+                viewModelScope.launch {
+                    val fetchedSaveItem = result.toObjects(UserSaveGame::class.java)
+
+                    Log.d(TAG, "로컬아이디 ${localId.value}")
+                    Log.d(TAG, "저장값 불러오기 ${fetchedSaveItem}")
+                    _userSaveGameItem.emit(fetchedSaveItem)
+                }
+
+            }
+    }
 
 
+    var logInIsLoadingFlow = MutableStateFlow(false)
+    fun fetchMatchItem() {
+        db.collection("saveGameItems")
+            .whereEqualTo("gameCode", gameCode.value)
+            .get()
+            .addOnSuccessListener { result ->
+                viewModelScope.launch {
+                    val fetchedGameItems = result.toObjects(UserSaveGame::class.java)
+                    codeMatchingGameItem.emit(fetchedGameItems)
+                    Log.d(TAG, "게임코드 불러오기 성공")
 
-    val item1 = GameItem(randomUUID().toString(), "보보", "짬뽕", "짜장",0, ItemKind.FOOD)
-    val item2 = GameItem(randomUUID().toString(), "보보", "우동", "라면",0, ItemKind.FOOD)
-    val item3 = GameItem(randomUUID().toString(), "보보", "딸기", "포도",0, ItemKind.FOOD)
-    val item4 = GameItem(randomUUID().toString(), "보보", "수박", "레몬",0, ItemKind.FOOD)
-    val item5 = GameItem(randomUUID().toString(), "보보", "찍먹", "부먹",0, ItemKind.FOOD)
-    val item6 = GameItem(randomUUID().toString(), "보보", "초밥", "회",0, ItemKind.FOOD)
-    val item7 = GameItem(randomUUID().toString(), "보보", "고기", "생선",0, ItemKind.FOOD)
-    val item8 = GameItem(randomUUID().toString(), "보보", "콜라", "사이다",0, ItemKind.FOOD)
-    val item9 = GameItem(randomUUID().toString(), "보보", "고구마", "감자",0, ItemKind.FOOD)
-    val item10 = GameItem(randomUUID().toString(), "라민", "한우", "삼겹살",0, ItemKind.FOOD)
-    val item11 = GameItem(randomUUID().toString(), "라민", "우주", "바다",0, ItemKind.TRAVEL)
-    val item12 = GameItem(randomUUID().toString(), "라민", "강", "산",0, ItemKind.TRAVEL)
-    val item13 = GameItem(randomUUID().toString(), "라민", "엄마", "아빠",0, ItemKind.ETC)
-    val item14 = GameItem(randomUUID().toString(), "라민", "딸", "아들",0, ItemKind.ETC)
-    val item15 = GameItem(randomUUID().toString(), "라민", "키스", "포옹",0, ItemKind.LOVE)
+                    logInIsLoadingFlow.emit(true)
+
+                    success.emit(true)
+                    gameCode.emit("")
 
 
-    val items = listOf(
-        item1,
-        item2,
-        item3,
-        item4,
-        item5,
-        item6,
-        item7,
-        item8,
-        item9,
-        item10,
-        item11,
-        item12,
-        item13,
-        item14,
-        item15
-    )
+                    Log.d(TAG, "매칭코드 게임 $fetchedGameItems")
+
+                }
+            }
+            .addOnFailureListener { exception ->
+                viewModelScope.launch { success.emit(false)  }
+
+                Log.w(MainActivity.TAG, "Error getting documents.", exception)
+            }
+    }
+
+
 
     val text1 = Compatibility(
         "이것 또한 천생연분! '반대가 끌리는 이유'라는 말도 있죠? 서로의 단점을 보완하고 감싸 안아주세요.",
@@ -204,12 +220,13 @@ class GameViewModel: ViewModel() {
     val texts = listOf(text1, text2)
 
 
-    val codeMatchingGameItem =
-        userSaveGameItem.combine(gameCode.filterNot { it.isEmpty() }) { saveList, inputGameCode ->
-            saveList.filter { it.GameCode.toString() == inputGameCode }
-        }
+    val codeMatchingGameItem = MutableStateFlow<List<UserSaveGame>>(emptyList())
 
-    val _startSaveGameValue = MutableStateFlow<UserSaveGame>(UserSaveGame(0, randomUUID(),"", emptyList()))
+    val _startSaveGameValue = MutableStateFlow<UserSaveGame>(UserSaveGame(
+        randomUUID().toString(),
+        randomUUID().toString(),
+        "",
+        emptyList()))
 
     val startSaveGameValue = _startSaveGameValue.replayCache
 
@@ -220,43 +237,52 @@ class GameViewModel: ViewModel() {
 
     val togetherGameItem = _togetherGameItem.asStateFlow()
 
-    val _currentTogetherGameItem =  MutableStateFlow<GameItem>(GameItem(randomUUID().toString(), "", "00", "00", 0, ItemKind.FOOD))
+    val _currentTogetherGameItem =  MutableStateFlow<GameItem>(GameItem(randomUUID().toString(), "", "00", "00", true ,0, ItemKind.FOOD))
 
     val currentTogetherGameItem = _currentTogetherGameItem.asStateFlow()
 
 
-    val success = userSaveGameItem.filterNot { it.isEmpty() }.combine(gameCode.filterNot { it.isEmpty() })  { saveList, inputGameCode ->
-        saveList.map { it.GameCode.toString() == inputGameCode }.last() }
+    val success = MutableStateFlow(false)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//    val success = userSaveGameItem.filterNot { it.isEmpty() }.combine(gameCode.filterNot { it.isEmpty() })  { saveList, inputGameCode ->
+//        saveList.map { it.GameCode == inputGameCode }.last() }
 
 
     init {
 
-//        _gameItemFlow.value = items
+//        allRemoveLocalId()
 
-//        loadUserData()
+
+
 
         fetchAllGameItems()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            userIdRepository.getAllUserId().distinctUntilChanged()
+                .collect(){userId ->
+                    if(userId.isNullOrEmpty()) {
+                        Log.d(TAG, "로컬 유저아이디 없음") }
+                    else {
+                        val loadId = userId.map { it.id }
+                        localId.emit(loadId.toString())
+                        Log.d(TAG, "${localId.value}")
+                    }
+                }
+        }
+
+        viewModelScope.launch {
+            delay(1000)
+                fetchAllSaveItems()
+                Log.d(TAG, "불러오기 실행")
+        }
+
+
 
         _matchTextItem.value = texts
 
         viewModelScope.launch {
             delay(2000)
+            if(mainGameItemLoadSuccessFlow.value == true){
             singleGameState.collectLatest {
                 selectedKindItem
                     .collectLatest {
@@ -272,6 +298,7 @@ class GameViewModel: ViewModel() {
 
             }
 
+        }
         }
 
     }
@@ -349,7 +376,7 @@ class GameViewModel: ViewModel() {
             val usedGameItem = _usedGameItem.value
 
             val items = usedGameItem.toMutableList().apply {
-                add(GameItem(gameItem.id, gameItem.makerName, gameItem.firstItem, gameItem.secondItem,  stageResultValue.value , gameItem.itemKind))
+                add(GameItem(gameItem.id, gameItem.makerName, gameItem.firstItem, gameItem.secondItem, true ,stageResultValue.value , gameItem.itemKind))
             }.toList()
             _usedGameItem.value = items
 
@@ -358,23 +385,58 @@ class GameViewModel: ViewModel() {
 
 
 
-    fun saveGameItem() {
-        viewModelScope.launch {
+    fun saveGameItem(){
 
-            val userSaveItem = _userSaveGameItem.value
-            val items = userSaveItem.toMutableList().apply {
-                add(
-                    UserSaveGame(
-                        listNumber = listNumber.value,
-                        randomUUID(),
-                        saveName.value,
-                        usedGameItem.value
-                    )
-                )
+        // 해시맵 만들기
+        val newSaveItem = UserSaveGame(
+            localId.value,
+            randomUUID().toString(),
+            saveName.value,
+            usedGameItem.value)
+
+        // Add a new document with a generated ID
+        db.collection("saveGameItems")
+            .add(newSaveItem.asHasMap())
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                val addedGameItems = _userSaveGameItem.value.toMutableList()
+                addedGameItems.add(0, newSaveItem)
+                viewModelScope.launch {
+                    _userSaveGameItem.emit(addedGameItems)
+                }
             }
-            _userSaveGameItem.value = items
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+            }
+    }
+
+
+    fun allRemoveLocalId() {
+        viewModelScope.launch {
+            userIdRepository.deleteAllUserId(userId = SaveId())
         }
     }
+
+
+
+//    fun saveGameItem() {
+//        viewModelScope.launch {
+//
+//            val userSaveItem = _userSaveGameItem.value
+//            val items = userSaveItem.toMutableList().apply {
+//                add(
+//                    UserSaveGame(
+//                        randomUUID().toString(),
+//                        listNumber = listNumber.value,
+//                        randomUUID().toString(),
+//                        saveName.value,
+//                        usedGameItem.value
+//                    )
+//                )
+//            }
+//            _userSaveGameItem.value = items
+//        }
+//    }
 
 
    private val _compatibilityValue = MutableStateFlow<List<MatchSelect>>(emptyList())
@@ -484,7 +546,7 @@ data class Compatibility(
 
 data class MatchSelect(val listNumber: Int, val firstUserSelect: String, val SecondUserSelect: String, val selectResult: Boolean)
 
-data class UserSaveGame(val listNumber: Int, val GameCode: UUID = randomUUID(), val saveName: String, val gameItems: List<GameItem>)
+//data class UserSaveGame(val listNumber: Int, val GameCode: UUID = randomUUID(), val saveName: String, val gameItems: List<GameItem>)
 
 
 

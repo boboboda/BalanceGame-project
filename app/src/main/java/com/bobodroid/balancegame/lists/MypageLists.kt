@@ -9,9 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -39,10 +37,8 @@ fun QuestionList(){
 
     Column(modifier = Modifier.fillMaxSize()) {
         MypageList(
-            listNumber = "리스트순서",
             saveName = "질문",
             itemCode = "공개여부",
-            firstCardBackgroundColor = Color.White,
             secondCardBackgroundColor = Color.White,
             thirdCardBackgroundColor = Color.White,
             gameCodeClicked = null
@@ -65,6 +61,7 @@ fun QuestionList(){
 
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun GameSaveLists(gameViewModel: GameViewModel) {
 
@@ -72,14 +69,12 @@ fun GameSaveLists(gameViewModel: GameViewModel) {
 
     val openDialog = remember { mutableStateOf(false) }
 
-
+    val GameCodeView = remember { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxSize()) {
         MypageList(
-            listNumber = "리스트순서",
             saveName = "저장된 게임 제목",
             itemCode = "게임코드",
-            firstCardBackgroundColor = Color.White,
             secondCardBackgroundColor = Color.White,
             thirdCardBackgroundColor = Color.White,
             gameCodeClicked = null
@@ -92,21 +87,21 @@ fun GameSaveLists(gameViewModel: GameViewModel) {
             .height(300.dp)) {
 
             items(saveGameItemList.value, { item -> item.GameCode }) { list ->
+
                 MypageList(
-                    listNumber = list.listNumber.toString(),
                     saveName = list.saveName,
-                    itemCode = list.GameCode.toString(),
-                    firstCardBackgroundColor = MyPageButtonColor,
+                    itemCode = list.GameCode,
                     secondCardBackgroundColor = MyPageSaveListColor,
                     thirdCardBackgroundColor = GameCordListColor,
                     gameCodeClicked = {
                         openDialog.value = !openDialog.value
+                        GameCodeView.value = list.GameCode
                     }
                 )
                 if (openDialog.value) {
                     GameCodeDialog(
                         onDismissRequest = {openDialog.value = it},
-                        gameCode = " ${list.GameCode.toString()}",
+                        gameCode = GameCodeView.value,
                         context = LocalContext.current,
                         selectedCopy = {openDialog.value = it})
                 }
@@ -131,12 +126,10 @@ fun AdminQuestionList(gameViewModel: GameViewModel){
 
     Column(modifier = Modifier.fillMaxSize()) {
         MypageList(
-            listNumber = "리스트순서",
             saveName = "질문",
             itemCode = "제작자",
-            firstCardBackgroundColor = Color.White,
-            secondCardBackgroundColor = Color.White,
-            thirdCardBackgroundColor = Color.White,
+            secondCardBackgroundColor = Color.LightGray,
+            thirdCardBackgroundColor = Color.LightGray,
             gameCodeClicked = null
         )
         Spacer(modifier = Modifier.height(2.dp))
@@ -148,10 +141,8 @@ fun AdminQuestionList(gameViewModel: GameViewModel){
 
             items(allGameItemList.value, { item -> item.id!! }) { list ->
                 MypageList(
-                    listNumber = list.id.toString(),
                     saveName = "${list.firstItem}/ ${list.secondItem} ",
                     itemCode = list.makerName.toString(),
-                    firstCardBackgroundColor = MyPageButtonColor,
                     secondCardBackgroundColor = MyPageSaveListColor,
                     thirdCardBackgroundColor = GameCordListColor,
                     gameCodeClicked = {  }
@@ -159,7 +150,9 @@ fun AdminQuestionList(gameViewModel: GameViewModel){
 
                 }
             }
-        Row(modifier = Modifier.fillMaxWidth().padding(10.dp),
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center) {
             Buttons(
@@ -201,31 +194,14 @@ fun AdminQuestionList(gameViewModel: GameViewModel){
 
 
 @Composable
-fun MypageList(listNumber: String,
-             saveName: String,
-             itemCode: String,
-firstCardBackgroundColor: Color,
-secondCardBackgroundColor: Color,
-thirdCardBackgroundColor: Color,
-gameCodeClicked:(() -> Unit)?){
+fun MypageList(
+    saveName: String,
+    itemCode: String,
+    secondCardBackgroundColor: Color,
+    thirdCardBackgroundColor: Color,
+    gameCodeClicked:(() -> Unit)?){
 
         Row(modifier = Modifier.padding(2.dp)) {
-            Card(modifier = Modifier
-                .border(
-                    border = BorderStroke(1.dp, color = Color.Black),
-                    shape = RoundedCornerShape(3.dp)
-                )
-                .background(color = firstCardBackgroundColor)
-                .wrapContentSize()
-            ) {
-                Row(modifier = Modifier
-                    .height(50.dp)
-                    .width(100.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center) {
-                    Text(text = listNumber)
-                }
-            }
 
             Spacer(modifier = Modifier.width(0.5.dp))
 
@@ -234,8 +210,8 @@ gameCodeClicked:(() -> Unit)?){
                     border = BorderStroke(1.dp, color = Color.Black),
                     shape = RoundedCornerShape(3.dp)
                 )
-                .background(color = secondCardBackgroundColor)
-                .weight(1f)
+                .weight(1f),
+                backgroundColor = secondCardBackgroundColor
             ) {
                 Row(modifier = Modifier
                     .height(50.dp)
@@ -247,13 +223,15 @@ gameCodeClicked:(() -> Unit)?){
 
             }
 
+            Spacer(modifier = Modifier.width(0.5.dp))
+
             Card(modifier = Modifier
                 .border(
                     border = BorderStroke(1.dp, color = Color.Black),
                     shape = RoundedCornerShape(3.dp)
                 )
-                .background(color = thirdCardBackgroundColor)
-                .wrapContentSize()
+                .wrapContentSize(),
+                backgroundColor = thirdCardBackgroundColor
             ) {
                 Row(modifier = Modifier
                     .height(50.dp)

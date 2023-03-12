@@ -50,14 +50,19 @@ fun AdminScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, game
             .fillMaxWidth()
             .padding(start = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start) {
+            horizontalArrangement = Arrangement.Center) {
 
-            Text(text = "사용자:")
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(text = "${userNickname.value}", color = Color.Blue)
+            Card {
+                Text(text = "관리자 모드", fontSize = 25.sp)
+            }
 
-            Spacer(modifier = Modifier.fillMaxWidth(0.1f))
+        }
 
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End){
             TextButton(onClick = {
                 coroutineScope.launch {
                     Firebase.auth.signOut()
@@ -70,7 +75,6 @@ fun AdminScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, game
 
                 Text(text = "로그아웃")
             }
-
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -78,10 +82,6 @@ fun AdminScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, game
         Row(modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center) {
-
-            Card {
-                Text(text = "관리자 모드", fontSize = 25.sp)
-            }
 
             Spacer(modifier = Modifier.width(20.dp))
 

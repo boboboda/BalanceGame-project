@@ -4,10 +4,12 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -16,8 +18,12 @@ import com.bobodroid.balancegame.*
 import com.bobodroid.balancegame.conponents.Buttons
 import com.bobodroid.balancegame.conponents.KindDialog
 import com.bobodroid.balancegame.conponents.StartGameCodeInputDialog
+import com.bobodroid.balancegame.ui.theme.CompatibilityColor
+import com.bobodroid.balancegame.ui.theme.MyPageSaveListColor
 import com.bobodroid.balancegame.ui.theme.Purple200
 import com.bobodroid.balancegame.viewmodels.GameViewModel
+import font.fontFamily
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -36,13 +42,9 @@ fun HomeScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel){
 
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val receiveSuccess = gameViewModel.success.collectAsState(initial = false)
+    val receiveSuccess = gameViewModel.success.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
-
-
-
-
 
 
 
@@ -77,6 +79,7 @@ fun HomeScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel){
         ) {
             Card(modifier = Modifier
                 .fillMaxWidth(0.8f)
+                .clip(shape = RoundedCornerShape(topStart = 30.dp, bottomEnd = 30.dp))
                 .height(200.dp),
                 onClick = {
                     gameViewModel.singleGameState.value = false
@@ -85,12 +88,13 @@ fun HomeScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel){
             ) {
                 Box(modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Blue),
+                    .background(MyPageSaveListColor),
                     contentAlignment = Alignment.Center
                 ){
                     Text(
                         text = "시작",
                         fontSize = 80.sp,
+                        fontFamily = fontFamily,
                         color = Color.White)
                 }
             }
@@ -104,18 +108,20 @@ fun HomeScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel){
         ) {
             Card(modifier = Modifier
                 .fillMaxWidth(0.8f)
+                .clip(shape = RoundedCornerShape(topStart = 30.dp, bottomEnd = 30.dp))
                 .height(200.dp),
                 onClick = {
                     if(openCodeInputDialog.value == false) openCodeInputDialog.value = !openCodeInputDialog.value else null }
             ) {
                 Box(modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Blue),
+                    .background(CompatibilityColor),
                     contentAlignment = Alignment.Center
                 ){
                     Text(modifier = Modifier.padding(5.dp),
                         text = "궁합\n테스트",
                         fontSize = 80.sp,
+                        fontFamily = fontFamily,
                         color = Color.White,
                         textAlign = TextAlign.Center)
                 }
@@ -133,24 +139,29 @@ fun HomeScreen(routeAction: MainRouteAction, gameViewModel: GameViewModel){
 
         if(openCodeInputDialog.value) {
             StartGameCodeInputDialog(
-                onDismissRequest = {openCodeInputDialog.value = it
-                                   gameViewModel.gameCode.value = ""
+                onDismissRequest = {
+                    openCodeInputDialog.value = it
+                    gameViewModel.gameCode.value = ""
                                    },
                 selected = {
-                    if(!receiveSuccess.value) {
-                        coroutineScope.launch {
-                            snackBarHostState.showSnackbar(
-                                "게임코드가 맞지 않습니다 다시입력해 주세요.",
-                                actionLabel = "닫기", SnackbarDuration.Short
-                            )
+                    coroutineScope.launch{
+                        gameViewModel.fetchMatchItem()
+                        gameViewModel.success.collectLatest {
+                            if(receiveSuccess.value) {
+                                routeAction.navTo(MainRoute.CompatibilityGame)
+                                gameViewModel.startTogetherGame()
+                            } else {
+                                snackBarHostState.showSnackbar(
+                                    "게임코드가 맞지 않습니다 다시 입력해주세요.",
+                                    actionLabel = "닫기", SnackbarDuration.Short
+                                )
+                                openCodeInputDialog.value = false
+                            }
                         }
-                    openCodeInputDialog.value = false
-                    } else
-                    {
-                        routeAction.navTo(MainRoute.CompatibilityGame)
-                        gameViewModel.startTogetherGame()
-                    } },
+                    }
+                           },
                 gameViewModel = gameViewModel,
+                successLoad = receiveSuccess.value
             )
         }
         Spacer(modifier = Modifier.weight(1f))

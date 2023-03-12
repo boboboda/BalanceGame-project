@@ -83,14 +83,14 @@ fun MainNaHost(
       composable(MainRoute.Home.routeName!!) {
           HomeScreen(mainRouteAction, gameViewModel)
       }
-      composable(MainRoute.MyPage.routeName!!){
-          MyPageScreen(mainRouteAction, authViewModel, myPageViewModel, homeViewModel, gameViewModel)
+      composable(MainRoute.SavePage.routeName!!){
+          SaveListScreen(mainRouteAction, authViewModel, myPageViewModel, homeViewModel, gameViewModel)
       }
       composable(MainRoute.DoItYourSelf.routeName!!){
-          DiyScreen(mainRouteAction, authRouteAction, authViewModel)
+          DiyScreen(mainRouteAction, authRouteAction, authViewModel, homeViewModel)
       }
       composable(MainRoute.SingleGame.routeName!!){
-          SingleGameScreen(mainRouteAction, gameViewModel)
+          SingleGameScreen(mainRouteAction, gameViewModel, authViewModel)
       }
       composable(MainRoute.CompatibilityGame.routeName!!){
           CompatibilityGameScreen(mainRouteAction, gameViewModel)
@@ -113,13 +113,15 @@ fun AuthNavHost(
     routeAction: AuthRouteAction,
     authViewModel: AuthViewModel,
     myPageViewModel: MyPageViewModel,
-    gameViewModel: GameViewModel
+    gameViewModel: GameViewModel,
+    mainRouteAction: MainRouteAction,
+    homeViewModel: HomeViewModel
 ){
     NavHost(
         navController = authNavController,
         startDestination = startRouter.routeName) {
         composable(AuthRoute.LOGIN.routeName) {
-            LoginScreen(routeAction, authViewModel, gameViewModel)
+            LoginScreen(routeAction,mainRouteAction, homeViewModel  ,authViewModel, gameViewModel)
         }
         composable(AuthRoute.REGISTER.routeName) {
             RegisterScreen(authViewModel, routeAction, myPageViewModel, gameViewModel)
@@ -209,7 +211,9 @@ fun AppScreen(
                 routeAction = authRouteAction ,
                 authViewModel = authViewModel,
                 myPageViewModel = myPageViewModel,
-                gameViewModel = gameViewModel)
+                gameViewModel = gameViewModel,
+                mainRouteAction = mainRouteAction,
+                homeViewModel = homeViewModel)
 
         }
 

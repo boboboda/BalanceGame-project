@@ -27,6 +27,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.bobodroid.balancegame.TAG
 import com.bobodroid.balancegame.ui.theme.MyPageButtonColor
+import com.bobodroid.balancegame.ui.theme.MyPageSaveListColor
 import com.bobodroid.balancegame.ui.theme.Teal200
 import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.dataViewModels.ItemKind
@@ -200,7 +201,7 @@ fun GameCodeDialog(
                 label = "게임코드 복사하기",
                 onClicked = {
                             val clipboardManager = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-                    var clipData: ClipData = ClipData.newPlainText("text",  "게임코드: $gameCode")
+                    var clipData: ClipData = ClipData.newPlainText("text",  "$gameCode")
                     clipboardManager.setPrimaryClip(clipData)
                     selectedCopy(false)
                 },
@@ -221,10 +222,14 @@ fun GameCodeDialog(
 @Composable
 fun StartGameCodeInputDialog(onDismissRequest: (Boolean)->Unit,
                              selected: ()-> Unit,
+                             successLoad: Boolean,
                              gameViewModel: GameViewModel) {
 
     val gameCode = gameViewModel.gameCode.collectAsState()
 
+    val openDialog = remember {
+        mutableStateOf(false)
+    }
 
     Dialog(
         onDismissRequest = { onDismissRequest(false) },
@@ -265,7 +270,10 @@ fun StartGameCodeInputDialog(onDismissRequest: (Boolean)->Unit,
 
                 Buttons(
                     label = "시작",
-                    onClicked = selected,
+                    onClicked = {
+                        selected.invoke()
+                        openDialog.value = true
+                                },
                     color = Teal200,
                     fontColor = Color.Black,
                     modifier = Modifier
@@ -289,6 +297,11 @@ fun StartGameCodeInputDialog(onDismissRequest: (Boolean)->Unit,
                         .width(80.dp),
                     fontSize = 15
                 )
+
+
+            }
+            if(openDialog.value){
+                LoadingDataDialog(successLoad = successLoad)
             }
 
         }
@@ -463,4 +476,55 @@ fun MakeQuestionDialog(
     }
 }
 
+
+@Composable
+fun LoadingDataDialog(
+    successLoad: Boolean
+    ) {
+
+    var progress by remember { mutableStateOf(0.1f) }
+
+    LaunchedEffect(successLoad) {
+        if(successLoad == false) {if(progress > 0f) progress -= 0.1f}
+    }
+
+    Log.d(TAG, "로딩 $successLoad")
+    Dialog(
+        onDismissRequest = {successLoad} ,
+        properties = DialogProperties()
+    ) {
+        Column(modifier = Modifier
+            .padding(10.dp)
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(16.dp)
+            ),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .padding(bottom = 15.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center) {
+
+                BaseCard(backgroundColor = Color.White, fontColor = Color.Black, modifier = Modifier, text = "불러오는중", fontSize = 30)
+            }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 15.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center) {
+                CircularProgressIndicator()
+            }
+        }
+    }
+}
 

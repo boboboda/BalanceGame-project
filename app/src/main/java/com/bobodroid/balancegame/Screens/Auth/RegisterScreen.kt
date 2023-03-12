@@ -145,7 +145,6 @@ fun RegisterScreen(authViewModel: AuthViewModel,
                 Log.d("회원가입화면", "로그인 버튼 클릭")
                 coroutineScope.launch {
                     authViewModel.registerUser()
-
                     authViewModel.registerNickName()
 
                }

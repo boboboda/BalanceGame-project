@@ -20,6 +20,7 @@ data class GameItem (
     var makerName: String = "",
     var firstItem: String = "",
     var secondItem: String = "",
+    var private: Boolean = false,
     var selectItem: Int = 0,
     var itemKind: ItemKind = ItemKind.FOOD) {
 
@@ -28,6 +29,7 @@ data class GameItem (
         this.makerName = data["makerName"] as String? ?: ""
         this.firstItem = data["firstItem"] as String? ?: ""
         this.secondItem = data["secondItem"] as String? ?: ""
+        this.private = data["private"] as Boolean? ?: false
         this.selectItem = data["selectItem"] as Int? ?: 0
         this.itemKind = data["itemKind"] as ItemKind? ?: ItemKind.FOOD
     }
@@ -38,6 +40,7 @@ data class GameItem (
             "makerName" to this.makerName,
             "firstItem" to this.firstItem,
             "secondItem" to this.secondItem,
+            "private" to this.private,
             "selectItem" to this.selectItem,
             "itemKind" to this.itemKind
         )

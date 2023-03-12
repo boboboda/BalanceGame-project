@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bobodroid.balancegame.MainRoute
+import com.bobodroid.balancegame.MainRouteAction
 import com.bobodroid.balancegame.Routes.AuthRoute
 import com.bobodroid.balancegame.Routes.AuthRouteAction
 import com.bobodroid.balancegame.TAG
@@ -22,12 +23,13 @@ import com.bobodroid.balancegame.ui.theme.Primary
 import com.bobodroid.balancegame.ui.theme.Purple200
 import com.bobodroid.balancegame.viewmodels.AuthViewModel
 import com.bobodroid.balancegame.viewmodels.GameViewModel
+import com.bobodroid.balancegame.viewmodels.HomeViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel, gameViewModel: GameViewModel){
+fun LoginScreen(routeAction: AuthRouteAction,mainRouteAction: MainRouteAction, homeViewModel: HomeViewModel ,authViewModel: AuthViewModel, gameViewModel: GameViewModel){
 
     val emailInput = authViewModel.logInEmailInputFlow.collectAsState()
 
@@ -37,7 +39,13 @@ fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel, game
 
     val isLoggedIn = authViewModel.isLoggedIn.collectAsState()
 
+    val currentUser = authViewModel.currentUserFlow.collectAsState()
+
+    val logInIsLoading = authViewModel.logInIsLoadingFlow.collectAsState()
+
     val coroutineScope = rememberCoroutineScope()
+
+
 
 
     Column(
@@ -47,7 +55,15 @@ fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel, game
         LogInBackButton(
             modifier = Modifier
                 .padding(vertical = 20.dp),
-            onClick =  routeAction.goBack
+            onClick = {
+                coroutineScope.launch {
+                    authViewModel.needAuthContext.emit(false)
+                    mainRouteAction.navTo(MainRoute.Home)
+                    homeViewModel.selectedCardId.emit(1)
+                }
+
+
+            }
         )
         Text(
             "로그인 화면",
@@ -81,11 +97,12 @@ fun LoginScreen(routeAction: AuthRouteAction, authViewModel: AuthViewModel, game
         BaseButton(
             title = "로그인",
             enabled = isLoginBtnActive,
+            isLoading = logInIsLoading.value,
             onClick = {
                 authViewModel.loginUser()
-                coroutineScope.launch {
-                    authViewModel.loadUserData()
-                }
+                authViewModel.userDataUpdate()
+                authViewModel.loadUserData()
+
                 Log.d("웰컴스크린", "로그인 버튼 클릭")
             })
 

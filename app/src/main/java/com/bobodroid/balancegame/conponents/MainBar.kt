@@ -68,13 +68,15 @@ fun MainBottomBar(
 
     val coroutineScope = rememberCoroutineScope()
 
-    val user = Firebase.auth.currentUser
+//    val user = Firebase.auth.currentUser
+//
+//    val currentEmail = user?.let { it.email }
 
-    val currentEmail = user?.let { it.email }
+    val currentEmail = authViewModel.currentUserFlow.collectAsState()
 
-    Log.d(TAG, "${currentEmail}")
+    Log.d(TAG, "${currentEmail.value}")
 
-    val adminUser = if(currentEmail == "kju9038@naver.com") true else false
+    val adminUser = if(currentEmail.value == "kju9038@naver.com") true else false
 
     val needAuth = authViewModel.needAuthContext.collectAsState()
 
@@ -111,7 +113,7 @@ fun MainBottomBar(
             )
         }
 
-            MainRoute.MyPage.let {
+            MainRoute.SavePage.let {
                 var color = if (selectedCardId.value == it.selectValue) BottomSelectedColor else  BottomColor
                 BottomNavigationItem(modifier = Modifier.background(color),
                     label = { Text(text = it.title!!)},
@@ -124,26 +126,17 @@ fun MainBottomBar(
                     unselectedContentColor = Color.Black,
                     selected = (mainRouteBackStack?.destination?.route) == it.routeName,
                     onClick = {
-
-
-
                         if(isPlayGame.value == false)
-                        {coroutineScope.launch {
+                        {
+                            coroutineScope.launch {
                                 snackBarHostState.showSnackbar("게임이 진행중입니다. 종료 후 시도하세요.",
                                     actionLabel = "닫기", SnackbarDuration.Short)
-                        } }
-                        else
-                        {
-                            coroutineScope.launch { authViewModel.needAuthContext.emit(true) }
-                            if(isLoggedIn.value == false) return@BottomNavigationItem
-                            if(adminUser)
-                        {mainRouteAction.navTo(MainRoute.Admin)
-                            homeViewModel.selectedCardId.value = it.selectValue!!
+                        }
                         } else {
                             mainRouteAction.navTo(it)
-                            homeViewModel.selectedCardId.value = it.selectValue!!}
+                            homeViewModel.selectedCardId.value = it.selectValue!!
                         }
-                    },
+                    }
 
                 )
         }
@@ -162,21 +155,25 @@ fun MainBottomBar(
                 unselectedContentColor = Color.Black,
                 selected = (mainRouteBackStack?.destination?.route) == it.routeName,
                 onClick = {
-                    if(isPlayGame.value == false) {
-                        coroutineScope.launch {
-                            snackBarHostState.showSnackbar(
-                                "게임이 진행중입니다. 종료 후 시도하세요.",
-                                actionLabel = "닫기", SnackbarDuration.Short
-                            )
-                        }
-                    }
-                    else
+
+                    if(isPlayGame.value == false)
                     {
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar("게임이 진행중입니다. 종료 후 시도하세요.",
+                                actionLabel = "닫기", SnackbarDuration.Short)
+                        }
+                    } else {
                         coroutineScope.launch { authViewModel.needAuthContext.emit(true) }
                         if(isLoggedIn.value == false) return@BottomNavigationItem
-                        mainRouteAction.navTo(it)
-                        homeViewModel.selectedCardId.value = it.selectValue!! } }
-                )
+                        if(adminUser)
+                        {mainRouteAction.navTo(MainRoute.Admin)
+                            homeViewModel.selectedCardId.value = it.selectValue!!
+                        } else {
+                            mainRouteAction.navTo(it)
+                            homeViewModel.selectedCardId.value = it.selectValue!!}
+                    }
+                }
+            )
         }
 
         SnackbarHost(hostState = snackBarHostState, modifier = Modifier)
