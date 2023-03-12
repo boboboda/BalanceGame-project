@@ -26,6 +26,8 @@ import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.HomeViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
@@ -40,6 +42,8 @@ fun LoginScreen(routeAction: AuthRouteAction,mainRouteAction: MainRouteAction, h
     val isLoggedIn = authViewModel.isLoggedIn.collectAsState()
 
     val currentUser = authViewModel.currentUserFlow.collectAsState()
+
+    val userNickname = authViewModel.userNickname.collectAsState()
 
     val logInIsLoading = authViewModel.logInIsLoadingFlow.collectAsState()
 
@@ -102,6 +106,13 @@ fun LoginScreen(routeAction: AuthRouteAction,mainRouteAction: MainRouteAction, h
                 authViewModel.loginUser()
                 authViewModel.userDataUpdate()
                 authViewModel.loadUserData()
+                coroutineScope.launch {
+                    authViewModel.isLoggedIn.collectLatest {
+                        if(isLoggedIn.value)
+                        { gameViewModel.makerName.emit(userNickname.value)
+                            gameViewModel.userQuestionLoad() }
+                    }
+                }
 
                 Log.d("웰컴스크린", "로그인 버튼 클릭")
             })
@@ -118,14 +129,37 @@ fun LoginScreen(routeAction: AuthRouteAction,mainRouteAction: MainRouteAction, h
                 Text(text = "회원가입 하러가기", color = Primary)
             }
 
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+
             TextButton(onClick = {
                 coroutineScope.launch {
+                    authViewModel.currentUserFlow.emit("kju9038@naver.com")
                     authViewModel.isLoggedIn.emit(true)
 
                 }
 
             }) {
-                Text(text = "로그인완료", color = Primary)
+                Text(text = "관리자 로그인완료", color = Primary)
+            }
+
+            TextButton(onClick = {
+                coroutineScope.launch {
+                    authViewModel.isLoggedIn.emit(true)
+                    authViewModel.isLoggedIn.collectLatest {
+                        if(isLoggedIn.value)
+                        { gameViewModel.userQuestionLoad() }
+                        }
+
+
+                }
+
+            }) {
+                Text(text = "사용자 로그인완료", color = Primary)
             }
         }
     }

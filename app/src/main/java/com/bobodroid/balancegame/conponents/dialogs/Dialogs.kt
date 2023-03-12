@@ -6,7 +6,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,7 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -25,13 +24,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.bobodroid.balancegame.TAG
 import com.bobodroid.balancegame.ui.theme.MyPageButtonColor
-import com.bobodroid.balancegame.ui.theme.MyPageSaveListColor
 import com.bobodroid.balancegame.ui.theme.Teal200
 import com.bobodroid.balancegame.viewmodels.GameViewModel
+import com.bobodroid.balancegame.viewmodels.dataViewModels.Compatibility
 import com.bobodroid.balancegame.viewmodels.dataViewModels.ItemKind
-import kotlinx.coroutines.launch
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -222,14 +219,12 @@ fun GameCodeDialog(
 @Composable
 fun StartGameCodeInputDialog(onDismissRequest: (Boolean)->Unit,
                              selected: ()-> Unit,
-                             successLoad: Boolean,
+                             startLoadDialog: (Boolean)-> Unit,
                              gameViewModel: GameViewModel) {
 
     val gameCode = gameViewModel.gameCode.collectAsState()
 
-    val openDialog = remember {
-        mutableStateOf(false)
-    }
+    val haveGameCode = if(gameCode.value == "") false else true
 
     Dialog(
         onDismissRequest = { onDismissRequest(false) },
@@ -270,10 +265,10 @@ fun StartGameCodeInputDialog(onDismissRequest: (Boolean)->Unit,
 
                 Buttons(
                     label = "시작",
+                    enabled = haveGameCode,
                     onClicked = {
-                        selected.invoke()
-                        openDialog.value = true
-                                },
+                        startLoadDialog(true)
+                        selected.invoke() },
                     color = Teal200,
                     fontColor = Color.Black,
                     modifier = Modifier
@@ -300,15 +295,14 @@ fun StartGameCodeInputDialog(onDismissRequest: (Boolean)->Unit,
 
 
             }
-            if(openDialog.value){
-                LoadingDataDialog(successLoad = successLoad)
-            }
+
+        }
 
         }
 
     }
 
-}
+
 
 
 
@@ -359,10 +353,9 @@ fun CompatibilityViewDialog(
 }
 
 
-
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun MakeQuestionDialog(
+fun UserMakeQuestionDialog(
     onDismissRequest: (Boolean)->Unit,
     selected: ()-> Unit,
     closeSelected: ()->Unit,
@@ -476,55 +469,4 @@ fun MakeQuestionDialog(
     }
 }
 
-
-@Composable
-fun LoadingDataDialog(
-    successLoad: Boolean
-    ) {
-
-    var progress by remember { mutableStateOf(0.1f) }
-
-    LaunchedEffect(successLoad) {
-        if(successLoad == false) {if(progress > 0f) progress -= 0.1f}
-    }
-
-    Log.d(TAG, "로딩 $successLoad")
-    Dialog(
-        onDismissRequest = {successLoad} ,
-        properties = DialogProperties()
-    ) {
-        Column(modifier = Modifier
-            .padding(10.dp)
-            .background(
-                color = Color.White,
-                shape = RoundedCornerShape(16.dp)
-            ),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Spacer(modifier = Modifier.height(25.dp))
-
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .padding(bottom = 15.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
-
-                BaseCard(backgroundColor = Color.White, fontColor = Color.Black, modifier = Modifier, text = "불러오는중", fontSize = 30)
-            }
-
-            Spacer(modifier = Modifier.height(25.dp))
-
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 15.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
-                CircularProgressIndicator()
-            }
-        }
-    }
-}
 

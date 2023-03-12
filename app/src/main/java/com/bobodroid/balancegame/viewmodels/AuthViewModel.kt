@@ -64,7 +64,6 @@ class AuthViewModel @Inject constructor(
     }
 
 
-
     var isLoggedIn = MutableStateFlow<Boolean>(false)
 
     var registerIsLoadingFlow = MutableStateFlow<Boolean>(false)
@@ -177,11 +176,13 @@ class AuthViewModel @Inject constructor(
                             delay(1000)
                             val matchUserNickname = matchUserEmail?.nickname
 
+                            userNickname.emit(matchUserNickname!!)
+
                             logInIsLoadingFlow.emit(false)
 
                             isLoggedIn.emit(true)
 
-                            userNickname.emit(matchUserNickname!!)
+
                             Log.d(TAG, "매칭 닉네임  ${matchUserEmail.nickname}")
                             Log.d(TAG, "매칭 닉네임  ${matchUserNickname}")
 

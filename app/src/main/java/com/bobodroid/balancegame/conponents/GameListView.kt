@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.bobodroid.balancegame.ui.theme.FirstGameItemColor
 import com.bobodroid.balancegame.ui.theme.SecondGameItemColor
 import com.bobodroid.balancegame.ui.theme.StageColor
+import font.fontFamily
 
 
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -54,7 +55,7 @@ fun SingleGameListView(
                     .background(StageColor),
                     contentAlignment = Alignment.Center
                 ){
-                    Text(text = "10/$gameState", fontSize = 25.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)
+                    Text(text = "10/$gameState",fontFamily = fontFamily ,fontSize = 25.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)
                 }
             }
             Spacer(modifier = Modifier.width(4.dp))
@@ -69,7 +70,7 @@ fun SingleGameListView(
                     .background(StageColor),
                     contentAlignment = Alignment.Center
                 ){
-                    Text(text = "$kind", fontSize = 25.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)
+                    Text(text = "$kind",fontFamily = fontFamily, fontSize = 25.sp, color = Color.DarkGray, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -82,7 +83,7 @@ fun SingleGameListView(
         ) {
             Card(modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .height(200.dp),
+                .fillMaxHeight(0.38f),
                 onClick = firstOnClicked) {
                 Box(
                     modifier = Modifier
@@ -92,7 +93,8 @@ fun SingleGameListView(
                 ) {
                     Text(
                         text = firstText,
-                        fontSize = 80.sp,
+                        fontFamily = fontFamily,
+                        fontSize = 70.sp,
                         color = Color.DarkGray
                     )
                 }
@@ -108,7 +110,7 @@ fun SingleGameListView(
         ) {
             Card(modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .height(200.dp),
+                .fillMaxHeight(0.8f),
                 onClick = secondClicked
             ) {
                 Box(modifier = Modifier
@@ -118,7 +120,8 @@ fun SingleGameListView(
                 ){
                     Text(modifier = Modifier.padding(5.dp),
                         text = secondText,
-                        fontSize = 80.sp,
+                        fontFamily = fontFamily,
+                        fontSize = 70.sp,
                         color = Color.DarkGray,
                         textAlign = TextAlign.Center)
                 }

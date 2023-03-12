@@ -16,10 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bobodroid.balancegame.MainRoute
 import com.bobodroid.balancegame.MainRouteAction
-import com.bobodroid.balancegame.conponents.MyPageButtons
-import com.bobodroid.balancegame.lists.AdminQuestionList
-import com.bobodroid.balancegame.lists.GameSaveLists
-import com.bobodroid.balancegame.lists.QuestionList
+import com.bobodroid.balancegame.conponents.*
+import com.bobodroid.balancegame.lists.*
 import com.bobodroid.balancegame.ui.theme.BackgroundColor
 import com.bobodroid.balancegame.viewmodels.AuthViewModel
 import com.bobodroid.balancegame.viewmodels.GameViewModel
@@ -34,7 +32,7 @@ fun AdminScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, game
 
     val postsListScrollSate = rememberLazyListState()
 
-    val userNickname = authViewModel.userNickname.collectAsState()
+    val myPageChangeListButton = myPageViewModel.myPageChangeListButton.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -85,16 +83,36 @@ fun AdminScreen(routeAction: MainRouteAction, authViewModel: AuthViewModel, game
 
             Spacer(modifier = Modifier.width(20.dp))
 
-            Card {
-                Text(text = "질문리스트", fontSize = 25.sp)
-            }
+            MyPageButtons(
+                label = "질문만들기",
+                id = 1,
+                selectedId = myPageChangeListButton.value,
+                onClicked = {myPageViewModel.myPageChangeListButton.value = it},
+                fontColor = Color.Black,
+                modifier = Modifier,
+                fontSize = 20
+            )
+            Spacer(modifier = Modifier.width(20.dp))
+
+            MyPageButtons(
+                label = "궁합 문구 만들기",
+                id = 2,
+                selectedId = myPageChangeListButton.value,
+                onClicked = {myPageViewModel.myPageChangeListButton.value = it},
+                fontColor = Color.Black,
+                modifier = Modifier,
+                fontSize = 20
+            )
         }
 
         Spacer(modifier = Modifier.height(10.dp))
 
         Column(modifier = Modifier.weight(1f)
         ) {
-            AdminQuestionList(gameViewModel)
+            when(myPageChangeListButton.value) {
+                1-> { AdminQuestionLists(gameViewModel)}
+                2-> { AdminSaveCompatibilityList(gameViewModel)}
+            }
             }
         }
     }

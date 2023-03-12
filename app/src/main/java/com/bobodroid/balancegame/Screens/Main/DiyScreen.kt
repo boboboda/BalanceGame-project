@@ -26,6 +26,7 @@ import com.bobodroid.balancegame.ui.theme.BackgroundColor
 import com.bobodroid.balancegame.ui.theme.MyPageButtonColor
 import com.bobodroid.balancegame.ui.theme.Purple200
 import com.bobodroid.balancegame.viewmodels.AuthViewModel
+import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.HomeViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -37,6 +38,7 @@ fun DiyScreen(
     authRouteAction: AuthRouteAction,
     authViewModel: AuthViewModel,
     homeViewModel: HomeViewModel,
+    gameViewModel: GameViewModel
 ){
 
     val postsListScrollSate = rememberLazyListState()
@@ -106,7 +108,7 @@ fun DiyScreen(
 
         Column(modifier = Modifier.weight(1f)
         ) {
-            QuestionList()
+            QuestionList(gameViewModel)
         }
     }
 }

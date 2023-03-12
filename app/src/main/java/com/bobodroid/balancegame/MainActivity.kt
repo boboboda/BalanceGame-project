@@ -31,12 +31,15 @@ import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.HomeViewModel
 import com.bobodroid.balancegame.viewmodels.MyPageViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 const val TAG = "메인"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+
 
     companion object {
         const val TAG = "메인 액티비티"
@@ -51,7 +54,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        gameViewModel.fetchAllGameItems()
+
+        gameViewModel.saveCompatibilityAllLoad()
+
         setContent {
+
             BalanceGameTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -77,34 +85,46 @@ fun MainNaHost(
     myPageViewModel: MyPageViewModel,
     homeViewModel: HomeViewModel
 ) {
+    val coroutineScope = rememberCoroutineScope()
   NavHost(
       navController = mainNavController,
       startDestination = startRouter.routeName!!) {
-      composable(MainRoute.Home.routeName!!) {
-          HomeScreen(mainRouteAction, gameViewModel)
-      }
-      composable(MainRoute.SavePage.routeName!!){
-          SaveListScreen(mainRouteAction, authViewModel, myPageViewModel, homeViewModel, gameViewModel)
-      }
-      composable(MainRoute.DoItYourSelf.routeName!!){
-          DiyScreen(mainRouteAction, authRouteAction, authViewModel, homeViewModel)
-      }
-      composable(MainRoute.SingleGame.routeName!!){
-          SingleGameScreen(mainRouteAction, gameViewModel, authViewModel)
-      }
-      composable(MainRoute.CompatibilityGame.routeName!!){
-          CompatibilityGameScreen(mainRouteAction, gameViewModel)
-      }
-      composable(MainRoute.CompatibilityResult.routeName!!){
-          ResultScreen(mainRouteAction, gameViewModel)
-      }
-      composable(MainRoute.Admin.routeName!!){
-          AdminScreen(mainRouteAction, authViewModel, gameViewModel, myPageViewModel, homeViewModel)
-      }
+          composable(MainRoute.Home.routeName!!) {
+              HomeScreen(mainRouteAction, gameViewModel)
+          }
+          composable(MainRoute.SavePage.routeName!!) {
+              SaveListScreen(
+                  mainRouteAction,
+                  authViewModel,
+                  myPageViewModel,
+                  homeViewModel,
+                  gameViewModel
+              )
+          }
+          composable(MainRoute.DoItYourSelf.routeName!!) {
+              DiyScreen(mainRouteAction, authRouteAction, authViewModel, homeViewModel, gameViewModel)
+          }
+          composable(MainRoute.SingleGame.routeName!!) {
+              SingleGameScreen(mainRouteAction, gameViewModel, authViewModel)
+          }
+          composable(MainRoute.CompatibilityGame.routeName!!) {
+              CompatibilityGameScreen(mainRouteAction, gameViewModel)
+          }
+          composable(MainRoute.CompatibilityResult.routeName!!) {
+              ResultScreen(mainRouteAction, gameViewModel)
+          }
+          composable(MainRoute.Admin.routeName!!) {
+              AdminScreen(
+                  mainRouteAction,
+                  authViewModel,
+                  gameViewModel,
+                  myPageViewModel,
+                  homeViewModel
+              )
+          }
 
+      }
   }
-
-}
 
 @Composable
 fun AuthNavHost(
@@ -117,6 +137,7 @@ fun AuthNavHost(
     mainRouteAction: MainRouteAction,
     homeViewModel: HomeViewModel
 ){
+
     NavHost(
         navController = authNavController,
         startDestination = startRouter.routeName) {
@@ -165,6 +186,9 @@ fun AppScreen(
     val selectedBottombar= homeViewModel.selectedCardId.collectAsState()
 
     val needAuth = authViewModel.needAuthContext.collectAsState()
+
+
+
 
 
     if(!needAuth.value)

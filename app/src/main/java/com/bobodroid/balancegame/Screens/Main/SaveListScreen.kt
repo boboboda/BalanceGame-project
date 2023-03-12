@@ -27,8 +27,6 @@ fun SaveListScreen(routeAction: MainRouteAction,
 
     val postsListScrollSate = rememberLazyListState()
 
-    val myPageChangeListButton = myPageViewModel.myPageChangeListButton.collectAsState()
-
     val userNickname = authViewModel.userNickname.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()

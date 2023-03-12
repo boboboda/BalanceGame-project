@@ -31,6 +31,7 @@ import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.HomeViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import font.fontFamily
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -44,6 +45,7 @@ fun MainTopBar() {
         Text(text = "궁합 밸런스 게임",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
+            fontFamily = fontFamily,
             textAlign = TextAlign.Center)
         }
     }
@@ -68,17 +70,11 @@ fun MainBottomBar(
 
     val coroutineScope = rememberCoroutineScope()
 
-//    val user = Firebase.auth.currentUser
-//
-//    val currentEmail = user?.let { it.email }
-
     val currentEmail = authViewModel.currentUserFlow.collectAsState()
 
     Log.d(TAG, "${currentEmail.value}")
 
     val adminUser = if(currentEmail.value == "kju9038@naver.com") true else false
-
-    val needAuth = authViewModel.needAuthContext.collectAsState()
 
     val isLoggedIn = authViewModel.isLoggedIn.collectAsState()
 

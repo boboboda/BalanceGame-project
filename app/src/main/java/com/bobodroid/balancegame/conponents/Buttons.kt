@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bobodroid.balancegame.ui.theme.*
 import com.bobodroid.balancegame.viewmodels.dataViewModels.ItemKind
+import font.fontFamily
 
 @Composable
 fun Buttons(
@@ -38,7 +39,7 @@ fun Buttons(
         enabled = enabled,
         onClick = {onClicked?.invoke()})
     {
-        Text(text = label, fontSize = fontSize.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(0.dp))
+        Text(text = label, fontFamily = fontFamily , fontSize = fontSize.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(0.dp))
     }
 }
 
