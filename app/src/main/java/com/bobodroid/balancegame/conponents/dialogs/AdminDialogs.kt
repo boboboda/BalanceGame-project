@@ -23,6 +23,7 @@ import com.bobodroid.balancegame.ui.theme.MyPageButtonColor
 import com.bobodroid.balancegame.ui.theme.Teal200
 import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.dataViewModels.Compatibility
+import com.bobodroid.balancegame.viewmodels.dataViewModels.GameItem
 
 @Composable
 fun LoadingDataDialog() {
@@ -617,6 +618,107 @@ fun AdminMakeQuestionDialog(
             }
 
 
+
+        }
+    }
+}
+
+
+@Composable
+fun AdminControllerQuestionDialog(
+    data: GameItem,
+    delete:() -> Unit,
+    privateOpen:() -> Unit,
+    privateSecret: () -> Unit,
+    onDismissRequest: (Boolean) -> Unit,
+) {
+
+
+    Dialog(
+        onDismissRequest = { onDismissRequest(false) },
+        properties = DialogProperties()
+    ) {
+        Column(modifier = Modifier
+            .wrapContentSize()
+            .padding(10.dp)
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(16.dp)
+            ),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(modifier = Modifier.padding(10.dp)) {
+                Text(text = "질문 관리")
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(text = "유저: ${data.makerName}\n ${data.firstItem}/${data.secondItem}")
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(modifier = Modifier.padding(5.dp)) {
+
+
+                Buttons(
+                    label = "공개",
+                    onClicked = {
+                        privateOpen.invoke()
+                        onDismissRequest(false)
+                                },
+                    color = MyPageButtonColor,
+                    fontColor = Color.Black,
+                    modifier = Modifier,
+                    fontSize = 20
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+
+                Buttons(
+                    label = "비공개",
+                    onClicked = {
+                        privateSecret.invoke()
+                        onDismissRequest(false)
+                    },
+                    color = MyPageButtonColor,
+                    fontColor = Color.Black,
+                    modifier = Modifier,
+                    fontSize = 20
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(modifier = Modifier.padding(5.dp)) {
+                Buttons(
+                    label = "삭제",
+                    onClicked = {
+                        delete.invoke()
+                        onDismissRequest(false)
+                    },
+                    color = MyPageButtonColor,
+                    fontColor = Color.Black,
+                    modifier = Modifier,
+                    fontSize = 20
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Buttons(
+                    label = "닫기",
+                    onClicked = {
+                        onDismissRequest(false)
+                    },
+                    color = MyPageButtonColor,
+                    fontColor = Color.Black,
+                    modifier = Modifier,
+                    fontSize = 20
+                )
+
+            }
 
         }
     }

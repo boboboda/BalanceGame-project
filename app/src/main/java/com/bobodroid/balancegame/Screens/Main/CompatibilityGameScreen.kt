@@ -58,7 +58,7 @@ fun CompatibilityGameScreen(routeAction: MainRouteAction, gameViewModel: GameVie
             firstOnClicked = {
                 if(gameStage.value == 10) openDialog.value = true else openDialog.value = false
                 gameViewModel.compatibilityListNumber.value += 1
-                gameViewModel.firstUserSelect.value = usedGameItem.value.selectItem!!
+                gameViewModel.firstUserSelect.value = usedGameItem.value.selectItem.toInt()
                 gameViewModel.secondUserSelect.value = 1
                 gameViewModel.actionSelect()
                 gameViewModel.startTogetherGame()
@@ -68,7 +68,7 @@ fun CompatibilityGameScreen(routeAction: MainRouteAction, gameViewModel: GameVie
             secondClicked = {
                 if(gameStage.value == 10) openDialog.value = true else openDialog.value = false
                 gameViewModel.compatibilityListNumber.value += 1
-                gameViewModel.firstUserSelect.value = usedGameItem.value.selectItem!!
+                gameViewModel.firstUserSelect.value = usedGameItem.value.selectItem.toInt()
                 gameViewModel.secondUserSelect.value = 2
                 gameViewModel.actionSelect()
                 gameViewModel.startTogetherGame()

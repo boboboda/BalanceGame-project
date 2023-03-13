@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontLoader
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FileBasedFontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
@@ -20,6 +21,7 @@ fun AutoSizeText(
     value: String,
     modifier: Modifier = Modifier,
     fontSize: TextUnit = 18.sp,
+    fontFamily: FileBasedFontFamily,
     maxLines: Int = Int.MAX_VALUE,
     minFontSize: TextUnit,
     scaleFactor: Float = 0.9f,
@@ -52,6 +54,7 @@ fun AutoSizeText(
         Text(
             text = value,
             color = color,
+            fontFamily = fontFamily,
             maxLines = maxLines,
             fontSize = nFontSize,
             textAlign = TextAlign.Center,

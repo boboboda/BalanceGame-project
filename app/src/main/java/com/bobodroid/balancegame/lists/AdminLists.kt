@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +18,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bobodroid.balancegame.conponents.Buttons
+import com.bobodroid.balancegame.conponents.dialogs.AdminControllerQuestionDialog
 import com.bobodroid.balancegame.conponents.dialogs.AdminMakeQuestionDialog
 import com.bobodroid.balancegame.conponents.dialogs.MakeMatchTextItemDialog
 import com.bobodroid.balancegame.conponents.dialogs.MatchTextItemDialog
@@ -25,6 +27,7 @@ import com.bobodroid.balancegame.ui.theme.MyPageButtonColor
 import com.bobodroid.balancegame.ui.theme.MyPageSaveListColor
 import com.bobodroid.balancegame.viewmodels.GameViewModel
 import com.bobodroid.balancegame.viewmodels.dataViewModels.Compatibility
+import com.bobodroid.balancegame.viewmodels.dataViewModels.GameItem
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,14 +40,17 @@ fun AdminQuestionLists(gameViewModel: GameViewModel){
 
     val coroutineScope = rememberCoroutineScope()
 
+    val questionAdminDialog = remember { mutableStateOf(false) }
+
+
+
     Column(modifier = Modifier.fillMaxSize()) {
-       AdminQuestionList(
+       AdminQuestionListTopView(
            firstText = "질문",
            secondText = "제작자",
            thirdText = "공개여부",
            secondCardBackgroundColor = Color.LightGray,
-           thirdCardBackgroundColor = Color.LightGray,
-           gameCodeClicked = null
+           thirdCardBackgroundColor = Color.LightGray
         )
         Spacer(modifier = Modifier.height(2.dp))
 
@@ -55,13 +61,15 @@ fun AdminQuestionLists(gameViewModel: GameViewModel){
 
             items(allGameItemList.value, { item -> item.id!! }) { list ->
                AdminQuestionList(
+                   data = list,
                    firstText = "${list.firstItem}/ ${list.secondItem} ",
                    secondText = list.makerName.toString(),
-                   thirdText = list.private.toString(),
+                   thirdText = if(list.private) "공개" else "비공개",
                    secondCardBackgroundColor = MyPageSaveListColor,
                    thirdCardBackgroundColor = GameCordListColor,
-                   gameCodeClicked = {  }
-                )
+                   gameViewModel)
+
+
 
             }
         }
@@ -96,6 +104,8 @@ fun AdminQuestionLists(gameViewModel: GameViewModel){
                 gameViewModel = gameViewModel
             )
         }
+
+
 
     }
 
@@ -189,80 +199,201 @@ fun AdminSaveCompatibilityList(gameViewModel: GameViewModel){
 
 
 @Composable
+fun AdminQuestionListTopView(
+    firstText: String,
+    secondText: String,
+    thirdText: String,
+    secondCardBackgroundColor: Color,
+    thirdCardBackgroundColor: Color){
+
+
+
+        Row(modifier = Modifier.padding(2.dp)) {
+
+            Spacer(modifier = Modifier.width(0.5.dp))
+
+            Card(
+                modifier = Modifier
+                    .border(
+                        border = BorderStroke(1.dp, color = Color.Black),
+                        shape = RoundedCornerShape(3.dp)
+                    )
+                    .weight(1f),
+                backgroundColor = secondCardBackgroundColor
+            ) {
+                Row(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(text = firstText)
+                }
+
+            }
+
+            Spacer(modifier = Modifier.width(0.5.dp))
+
+            Card(
+                modifier = Modifier
+                    .border(
+                        border = BorderStroke(1.dp, color = Color.Black),
+                        shape = RoundedCornerShape(3.dp)
+                    )
+                    .wrapContentSize(),
+                backgroundColor = thirdCardBackgroundColor
+            ) {
+                Row(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .width(80.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+
+                    Text(
+                        text = AnnotatedString(secondText),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(0.5.dp))
+
+            Card(
+                modifier = Modifier
+                    .border(
+                        border = BorderStroke(1.dp, color = Color.Black),
+                        shape = RoundedCornerShape(3.dp)
+                    )
+                    .wrapContentSize(),
+                backgroundColor = thirdCardBackgroundColor
+            ) {
+                Row(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .width(80.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+
+                    Text(
+                        text = AnnotatedString(thirdText),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                }
+            }
+        }
+    }
+
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
 fun AdminQuestionList(
+    data: GameItem,
     firstText: String,
     secondText: String,
     thirdText: String,
     secondCardBackgroundColor: Color,
     thirdCardBackgroundColor: Color,
-    gameCodeClicked:(() -> Unit)?){
+    gameViewModel: GameViewModel){
 
-    Row(modifier = Modifier.padding(2.dp)) {
+    val questionAdminDialog = remember { mutableStateOf(false) }
 
-        Spacer(modifier = Modifier.width(0.5.dp))
-
-        Card(modifier = Modifier
-            .border(
-                border = BorderStroke(1.dp, color = Color.Black),
-                shape = RoundedCornerShape(3.dp)
-            )
-            .weight(1f),
-            backgroundColor = secondCardBackgroundColor
+    Card(
+        modifier = Modifier
+            .height(50.dp)
+            .padding(2.dp),
+        shape = RoundedCornerShape(0.dp),
+        onClick = { questionAdminDialog.value = true},
         ) {
-            Row(modifier = Modifier
-                .height(50.dp)
-                .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
-                Text(text = firstText)
+        Row() {
+            Card(
+                modifier = Modifier
+                    .border(
+                        border = BorderStroke(1.dp, color = Color.Black),
+                        shape = RoundedCornerShape(3.dp)
+                    )
+                    .weight(1f),
+                backgroundColor = secondCardBackgroundColor
+            ) {
+                Row(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(text = firstText)
+                }
+
             }
 
-        }
+            Spacer(modifier = Modifier.width(0.5.dp))
 
-        Spacer(modifier = Modifier.width(0.5.dp))
+            Card(
+                modifier = Modifier
+                    .border(
+                        border = BorderStroke(1.dp, color = Color.Black),
+                        shape = RoundedCornerShape(3.dp)
+                    )
+                    .wrapContentSize(),
+                backgroundColor = thirdCardBackgroundColor
+            ) {
+                Row(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .width(80.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
 
-        Card(modifier = Modifier
-            .border(
-                border = BorderStroke(1.dp, color = Color.Black),
-                shape = RoundedCornerShape(3.dp)
-            )
-            .wrapContentSize(),
-            backgroundColor = thirdCardBackgroundColor
-        ) {
-            Row(modifier = Modifier
-                .height(50.dp)
-                .width(80.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
+                    Text(
+                        text = AnnotatedString(secondText),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                }
+            }
 
-                ClickableText(text = AnnotatedString(secondText),
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    onClick = { gameCodeClicked?.invoke() }  )
+            Spacer(modifier = Modifier.width(0.5.dp))
+
+            Card(
+                modifier = Modifier
+                    .border(
+                        border = BorderStroke(1.dp, color = Color.Black),
+                        shape = RoundedCornerShape(3.dp)
+                    )
+                    .wrapContentSize(),
+                backgroundColor = thirdCardBackgroundColor
+            ) {
+                Row(
+                    modifier = Modifier
+                        .height(50.dp)
+                        .width(80.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+
+                    Text(
+                        text = AnnotatedString(thirdText),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                }
             }
         }
-
-        Spacer(modifier = Modifier.width(0.5.dp))
-
-        Card(modifier = Modifier
-            .border(
-                border = BorderStroke(1.dp, color = Color.Black),
-                shape = RoundedCornerShape(3.dp)
-            )
-            .wrapContentSize(),
-            backgroundColor = thirdCardBackgroundColor
-        ) {
-            Row(modifier = Modifier
-                .height(50.dp)
-                .width(80.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center) {
-
-                ClickableText(text = AnnotatedString(thirdText),
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    onClick = { gameCodeClicked?.invoke() }  )
-            }
-        }
+    }
+    if(questionAdminDialog.value){
+        AdminControllerQuestionDialog(
+            data = data,
+            delete = {   },
+            privateOpen = { gameViewModel.editPrivateGameItem(data, true) },
+            privateSecret = {   },
+            onDismissRequest = {questionAdminDialog.value = it}
+        )
     }
 }
